@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "844114687606",
+    "project_id": "bigmidas-vendor",
+    "storage_bucket": "bigmidas-vendor.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:844114687606:android:62d637f9d6de87e5095157",
+        "android_client_info": {
+          "package_name": "eroftech.bigmidasvendornew"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "844114687606-cbs55ke947dqsb58jdk4qm8ku6pfkcv2.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA4iRGc8Ep9LYYj_gmkF0ry35hmROXH3PE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "844114687606-cbs55ke947dqsb58jdk4qm8ku6pfkcv2.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

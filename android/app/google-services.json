@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "429680933728",
+    "project_id": "big-midas-notifications",
+    "storage_bucket": "big-midas-notifications.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:429680933728:android:010bb140975ec21350bc05",
+        "android_client_info": {
+          "package_name": "eroftech.bigmidasvendornew"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "429680933728-nvf41egc45nutvql144jeh5gc5l394eq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBpObHJjmZyaTvdXKZ937SrvJUgrzFUUco"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "429680933728-nvf41egc45nutvql144jeh5gc5l394eq.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
