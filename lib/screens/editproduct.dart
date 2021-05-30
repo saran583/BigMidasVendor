@@ -2,6 +2,7 @@
 import 'package:bigmidasvendor/model/modelproduct.dart';
 import 'package:bigmidasvendor/provider/providershop.dart';
 import 'package:bigmidasvendor/widgets/drawer.dart';
+import 'package:bigmidasvendor/widgets/testdraw.dart';
 import 'package:bigmidasvendor/widgets/myappbar.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -43,7 +44,8 @@ class EditProductState extends State<EditProduct> {
       Scaffold(
           key: _scaffoldKey,
           appBar: getAppBar(_scaffoldKey,context),
-          drawer: drawer(context, "username", "balance"),
+          // drawer: drawer(context, "username", "balance"),
+          drawer: TestDraw(),
           //body:modelProducts==null?Center(child:CircularProgressIndicator()) :Container(
         body:Provider.of<ProviderShop>(context,listen:true).isLoadingProducts
             ?Center(child:CircularProgressIndicator())

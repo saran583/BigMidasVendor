@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:bigmidasvendor/model/modalmycurrentsubs.dart';
 import 'package:bigmidasvendor/model/modalsubplan.dart';
@@ -8,7 +10,9 @@ import 'package:bigmidasvendor/sharedpreference/loginpreferenc.dart';
 import 'package:bigmidasvendor/widgets/drawer.dart';
 import 'package:bigmidasvendor/widgets/myappbar.dart';
 import 'package:bigmidasvendor/widgets/showdialog.dart';
+import 'package:bigmidasvendor/widgets/testdraw.dart';
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:provider/provider.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
 
@@ -26,10 +30,11 @@ class SubscriptionState extends State<Subscription>
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
   bool isLoadingPlans=true;
-
+  bool status=false;
   ModalMySubs modalMySubs;
   Razorpay _razorpay;
   String selectedPlanId;
+  Timer timer;
 
   @override
   void initState() {
@@ -40,8 +45,18 @@ class SubscriptionState extends State<Subscription>
     _razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS, _handlePaymentSuccess);
     _razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, _handlePaymentError);
     _razorpay.on(Razorpay.EVENT_EXTERNAL_WALLET, _handleExternalWallet);
-
+    print("This is lat and long of yours");
+    // getlocation();
         getPlans();
+
+        timer = Timer.periodic(Duration(seconds: 10), (Timer t) =>getlocation());
+        
+  }
+
+  getlocation() async{
+    final pos = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+    print("this is the Lat&Long");
+    print(pos);
   }
 
   @override
@@ -60,8 +75,9 @@ class SubscriptionState extends State<Subscription>
     return Scaffold(
       key: _scaffoldKey,
       appBar: getAppBar(_scaffoldKey,context),
-      drawer: drawer(context, "username", "balance"),
-      body: listModalSubsPlans==null
+      // drawer: drawer(context, "username", "balance"),
+      drawer: TestDraw(),
+      body:SingleChildScrollView(child: listModalSubsPlans==null
           ?Center(child: CircularProgressIndicator(),)
 
           :Container(
@@ -77,17 +93,17 @@ class SubscriptionState extends State<Subscription>
           ],
           ),
           SizedBox(height: 10,),
-          Container(
+          status==true?Container():Container(
               alignment: Alignment.centerLeft,
             margin: EdgeInsets.only(left: 30,right: 30,top: 50),
               child: Text("Reactivate Your Account:",style: TextStyle(color: Colors.blue,fontSize: 20),),),
-          Container(
+          status==true?Container():Container(
             alignment: Alignment.centerLeft,
             margin: EdgeInsets.only(left:40 ,top: 10),
             child: Text("To Get Orders:",style: TextStyle(color: Colors.blue,fontSize: 20),),),
 
         for(int i=0;i<listModalSubsPlans.length;i++)
-          Container(
+          status==true?Container():Container(
               margin: EdgeInsets.all(10),
               child: Container(
                 height: 50,
@@ -122,8 +138,57 @@ class SubscriptionState extends State<Subscription>
 
                 ),
               ),
-          )
+          ),
 
+
+         status==true ? modalMySubs.totaldayssubscribed==null? CircularProgressIndicator() : Container(
+              margin: EdgeInsets.all(10),
+              child: Column(children:[
+                SizedBox(height: 45,), 
+                Center(
+                  child: Text("Payment Successfull",style: TextStyle(color: Colors.blue,fontSize: 32),)
+                ),
+                SizedBox(height: 30,),
+                Center(
+                  child:Text("Total Days Subscribed:  ${modalMySubs.totaldayssubscribed}",style: TextStyle(color: Colors.orange[600],fontSize: 20)),),
+                  SizedBox(height: 30,),
+                Center(
+                  child:Text("Days Remaining:  ${modalMySubs.daysremaining}",style: TextStyle(color: Colors.orange[600],fontSize: 20)) ,),  
+              ],),):Container(),
+          //       Container(
+//                 height: 50,
+//                 child: Center(child: Row(
+//                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+//                   children: [
+//        Text("Payment Status",style: TextStyle(color: Colors.black,fontSize: 18),),
+//       Text("Succes",style: TextStyle(color: Colors.black,fontSize: 18),),
+//    ] ),
+//    Container(
+//                 height: 50,
+//                 child: Center(child: Row(
+
+//                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+//                   children: [
+//        Text("Payment Status",style: TextStyle(color: Colors.black,fontSize: 18),),
+//       Text("Succes",style: TextStyle(color: Colors.black,fontSize: 18),),
+//    ] ),
+//    Container(
+//                 height: 50,
+//                 child: Center(child: Row(
+
+//                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+//                   children: [
+//        Text("Payment Status",style: TextStyle(color: Colors.black,fontSize: 18),),
+//       Text("Succes",style: TextStyle(color: Colors.black,fontSize: 18),),
+//    ] )
+//    ]),
+// //                    Text("30 Days:",style: TextStyle(color: Colors.black,fontSize: 18),),
+// //                    Text("100 Rs.",style: TextStyle(color: Colors.red,fontSize: 18),),
+// //                    Text("Pay Now",style: TextStyle(color: Colors.blue,fontSize: 18),),
+
+//                 ),
+//               ),
+//           ),
 //          Container(
 //              margin: EdgeInsets.all(10),
 //              child: Container(
@@ -196,7 +261,7 @@ class SubscriptionState extends State<Subscription>
           ),
 
 
-    );
+    ),);
   }
 
 
@@ -211,6 +276,7 @@ class SubscriptionState extends State<Subscription>
     var value = Provider.of<ProviderSubscriptionPlans>(context,listen: false).getupdatedSubscription(modelUser.sId,context);
     setState(() {
           getPlans();
+          status=true;
         });
   }
 

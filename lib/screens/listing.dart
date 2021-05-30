@@ -764,14 +764,15 @@ class ListingState extends State<Listing> {
   void showPlacePicker() async {
 
     result = await showLocationPicker(
-      context, "",
+      context, "AIzaSyBJ7XP4D6qnzuxDXNomz4JYtNsaMW89M7k",
 
       initialCenter: LatLng(23.2599, 77.4126),
       myLocationButtonEnabled: true,
       layersButtonEnabled: true,
-      countries: ['AE', 'NG'],
+      countries: ['AE', 'NG', 'IN'],
 
     );
+    print("latlong ${result}");
     print("latlong ${result.latLng.longitude}");
     controllerLatLong.text =
     "${result.latLng.latitude} ${result.latLng.longitude}";

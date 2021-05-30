@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:bigmidasvendor/model/modelnotification.dart';
 import 'package:bigmidasvendor/widgets/drawer.dart';
 import 'package:bigmidasvendor/widgets/myappbar.dart';
+import 'package:bigmidasvendor/widgets/testdraw.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import '../common.dart';
@@ -36,7 +37,8 @@ class AppNotificationState extends State<AppNotification>
     return Scaffold(
       key: _scaffoldKey,
       appBar: getAppBar(_scaffoldKey,context),
-      drawer: drawer(context, "username", "balance"),
+      // drawer: drawer(context, "username", "balance"),
+      drawer: TestDraw(),
       body: Container(
         width: double.infinity,
       child:listNotifications==null?Center(child: CircularProgressIndicator(),) :

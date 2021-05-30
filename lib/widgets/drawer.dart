@@ -1,8 +1,14 @@
+import 'package:bigmidasvendor/model/modeluser.dart';
 import 'package:bigmidasvendor/provider/providerlogn.dart';
+import 'package:bigmidasvendor/sharedpreference/loginpreferenc.dart';
 import 'package:bigmidasvendor/sharedpreference/tempprefmimicapi.dart';
 import 'package:flutter/material.dart';
 import 'package:lite_rolling_switch/lite_rolling_switch.dart';
 import 'package:provider/provider.dart';
+import 'package:http/http.dart'as http;
+import 'package:bigmidasvendor/common.dart';
+import 'package:custom_switch/custom_switch.dart';
+
 
 import 'listtiledrawer.dart';
 
@@ -25,6 +31,7 @@ List<Icon>icons=[
 //bool value=true;
 Widget drawer(BuildContext context, String username, String balance) {
 //_context=context;
+
   return Container(
 
       width: MediaQuery.of(context).size.width * 0.8,
@@ -134,19 +141,25 @@ Widget drawer(BuildContext context, String username, String balance) {
 Future<Widget> _fetchNetworkCall(BuildContext _context)async{
 
   TempPrefMimicAPI tempPrefMimicAPI=TempPrefMimicAPI();
-  bool value=Provider.of<ProviderLogin>(_context,listen: false).activeValue;
-  print("fetch network call $value");
-ModalPrefListingStatus modalPrefListingStatus=await  tempPrefMimicAPI.getUserPreference();
-
-if(Provider.of<ProviderLogin>(_context,listen:false).userType=="store"){
-  value=modalPrefListingStatus.storeActive!=null?modalPrefListingStatus.storeActive:true;
-  print(modalPrefListingStatus.storeActive);
-}
+  // bool value=Provider.of<ProviderLogin>(_context,listen: false).activeValue;
+  // print("fetch network call $value");
+  bool value;
+  LoginPreference pref=LoginPreference();
+   ModelUser modelUser=await pref.getUserPreference();
+// ModalPrefListingStatus modalPrefListingStatus=await  tempPrefMimicAPI.getUserPreference();
+  print("this is in drawer ${modelUser.sId}");
+  if(Provider.of<ProviderLogin>(_context,listen:false).userType=="store"){
+    // value=modalPrefListingStatus.storeActive!=null?modalPrefListingStatus.storeActive:true;
+    value = await getstatus(modelUser.sId,"store");
+    // print(getstatus(modelUser.sId,false).toString());
+  }
   if(Provider.of<ProviderLogin>(_context,listen:false).userType=="vehicle"){
-    value=modalPrefListingStatus.vehicleActive!=null?modalPrefListingStatus.vehicleActive:true;
+    // value=modalPrefListingStatus.vehicleActive!=null?modalPrefListingStatus.vehicleActive:true;
+    value = getstatus(modelUser.sId,"vehicle") as bool;
   }
   if(Provider.of<ProviderLogin>(_context,listen:false).userType=="service"){
-    value=modalPrefListingStatus.serviceActive!=null?modalPrefListingStatus.serviceActive:true;
+    // value=modalPrefListingStatus.serviceActive!=null?modalPrefListingStatus.serviceActive:true;
+    value = getstatus(modelUser.sId,"service") as bool;
   }
   Provider.of<ProviderLogin>(_context,listen: false).activeValue=value;
 print("active $value ${Provider.of<ProviderLogin>(_context,listen:false).userType}");
@@ -154,36 +167,111 @@ return Future.value( Container(
   margin: EdgeInsets.only(left:0,right: MediaQuery.of(_context).size.width/3+55),
 
   height: 30,
-  child: LiteRollingSwitch(
-    //initial value
-    value: value,
-    textOn: 'Active',
-    textOff: 'In-Active',
-    colorOn: Colors.greenAccent[700],
-    colorOff: Colors.redAccent[700],
-    iconOn: Icons.done,
-    iconOff: Icons.remove_circle_outline,
-    textSize: 12.0,
-    onChanged: (bool state) {
-      //Use it to manage the different states
-      print('Current State of SWITCH IS: $state');
-      print("provider ${Provider.of<ProviderLogin>(_context,listen:false).userType}");
-      if(Provider.of<ProviderLogin>(_context,listen:false).userType=="store"){
-        print("updated store activeness");
-        tempPrefMimicAPI.setListing(storeActive: state);
-      }
-      if(Provider.of<ProviderLogin>(_context,listen:false).userType=="vehicle"){
-        value=modalPrefListingStatus.vehicleActive;
-        tempPrefMimicAPI.setListing(vehicleActive: state);
-      }
-      if(Provider.of<ProviderLogin>(_context,listen:false).userType=="service"){
-        value=modalPrefListingStatus.serviceActive;
-        tempPrefMimicAPI.setListing(serviceActive: state);
-      }
-      Provider.of<ProviderLogin>(_context,listen: false).activeValue=value;
-      print("complete");
-    },
-  ),
+  child: CustomSwitch(
+              activeColor: Colors.pinkAccent,
+              value: value,
+              onChanged: (status) {
+                print("VALUE : $value");
+                  if(Provider.of<ProviderLogin>(_context,listen:false).userType=="store"){
+                   editstatus(modelUser.sId,status,"store");
+                   print("New state $status");
+                     value = status;
+                  }
+                  if(Provider.of<ProviderLogin>(_context,listen:false).userType=="store"){
+                  value = value;
+                  }
+                  if(Provider.of<ProviderLogin>(_context,listen:false).userType=="store"){
+                  value = value;
+                  }
+              },
+            ), 
+  // LiteRollingSwitch(
+  //   //initial value
+  //   value: value,
+  //   textOn: 'Active',
+  //   textOff: 'In-Active',
+  //   colorOn: Colors.greenAccent[700],
+  //   colorOff: Colors.redAccent[700],
+  //   iconOn: Icons.done,
+  //   iconOff: Icons.remove_circle_outline,
+  //   textSize: 12.0,
+  //   onChanged: (bool state) {
+  //     //Use it to manage the different states
+  //     print('Current State of SWITCH IS: $state');
+  //     print("provider ${Provider.of<ProviderLogin>(_context,listen:false).userType}");
+  //     if(Provider.of<ProviderLogin>(_context,listen:false).userType=="store"){
+  //       print("updated store activeness");
+  //       value=state;
+  //       editstatus(modelUser.sId,state,"store");
+  //       // tempPrefMimicAPI.setListing(storeActive: state);
+  //     }
+  //     if(Provider.of<ProviderLogin>(_context,listen:false).userType=="vehicle"){
+  //       value=state;
+  //       // tempPrefMimicAPI.setListing(vehicleActive: state);
+  //       editstatus(modelUser.sId,state,"vehicle");
+
+  //     }
+  //     if(Provider.of<ProviderLogin>(_context,listen:false).userType=="service"){
+  //       value=state;
+  //       // tempPrefMimicAPI.setListing(serviceActive: state);
+  //       editstatus(modelUser.sId,state,"service");
+
+  //     }
+  //     Provider.of<ProviderLogin>(_context,listen: false).activeValue=value;
+  //     print("complete");
+  //   },
+  // ),
 ),
+
+
 );
+
+}
+
+Future<bool> getstatus(val,cat) async {
+  print("Entered getstatus");
+   var url;
+   if(cat=="store"){
+     print("entered store in get status");
+    url = GETSTOREACTIVE+"/"+val;
+  }
+  else if(cat=="service"){
+    url = GETSERVICEACTIVE+"/"+val;
+  }
+  else if(cat=="vehicle"){
+    url = GETVEHICLEACTIVE+"/"+val;
+  }
+  var request = http.Request('GET', Uri.parse(url));
+    http.StreamedResponse response = await request.send();
+    String strRes=await response.stream.bytesToString();
+    print("this is response from drawer $strRes");
+
+    if(strRes.contains("true")){
+      print("Status is true in drawer");
+      return true;
+    }
+    else if(strRes.contains("false")){
+      print("Status is false in drawer");
+      return false;
+
+    }
+  
+}
+
+editstatus(val,state,cat) async {
+   var url;
+   if(cat=="store"){
+    url = EDITSTOREACTIVE+"/"+val+"&&"+state.toString();
+  }
+  else if(cat=="service"){
+    url = EDITSERVICEACTIVE+"/"+val+"&&"+state.toString();
+  }
+  else if(cat=="vehicle"){
+    url = EDITVEHICLEACTIVE+"/"+val+"&&"+state.toString();
+  }
+  // var url = EDITSTOREACTIVE+"/"+val+state.toString();
+  var request = http.Request('GET', Uri.parse(url));
+    http.StreamedResponse response = await request.send();
+    print(response);
+  return true;
 }

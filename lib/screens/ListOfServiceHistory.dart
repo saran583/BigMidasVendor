@@ -10,11 +10,13 @@ import 'package:bigmidasvendor/provider/providersubscriptionplan.dart';
 import 'package:bigmidasvendor/screens/serviceHistory.dart';
 import 'package:bigmidasvendor/sharedpreference/loginpreferenc.dart';
 import 'package:bigmidasvendor/widgets/drawer.dart';
+import 'package:bigmidasvendor/widgets/testdraw.dart';
 import 'package:bigmidasvendor/widgets/myappbar.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart'as http;
 import 'package:share/share.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ListOfServiceHistory extends StatefulWidget {
   static String routeName="/servicehistory";
@@ -51,7 +53,8 @@ class _ListOfServiceHistoryState extends State<ListOfServiceHistory> {
       Scaffold(
           key: _scaffoldKey,
           appBar: getAppBar(_scaffoldKey,context),
-          drawer: drawer(context, "username", "balance"),
+          drawer: TestDraw(),
+          // drawer: drawer(context, "username", "balance"),
           body:Container(
             height: size.height,
             width: size.width,
@@ -237,6 +240,17 @@ class _ListOfServiceHistoryState extends State<ListOfServiceHistory> {
     }
 
   }
+
+  void Navigate(String origin,String destination) async {
+    var url="https://www.google.com/maps/dir/?api=1&destination=$destination&travelmode=driving&dir_action=navigate";
+    if(await canLaunch(url)){
+      await launch(url);
+    } else {
+      print("Cannot Launch");
+    }
+  }
+
+
   //   void sendnotification(String cusid, String msg) async{
   //   String url='https://admin.bigmidas.com:7420/store/sendnotificationtocustomer';
   //   var request = http.Request('POST', Uri.parse(url));
@@ -375,7 +389,11 @@ class _ListOfServiceHistoryState extends State<ListOfServiceHistory> {
                           setState(() {
                           modelServiceOrders.products.removeAt(value);});
                            }), child: Text("Reject") ),
-                           SizedBox(width: 35,),
+                           SizedBox(width: 5,),
+                RaisedButton(onPressed: ((){
+                          Navigate("43.7967876,-79.5331616",location);
+                }),child: Text("Location") ),
+                           SizedBox(width: 5,),
                            RaisedButton ( onPressed: ((){ 
                             // sendnotification(custid,status=="2"?"Your request $orderid has been fullfilled successfully!!":"Your request $orderid has been accepted by the Service Provider");
                           updatestatus(id.toString(),status=="2"?"3":"2",custid,status=="2"?"Your request $orderid has been fullfilled successfully!!":"Your request $orderid has been accepted by the Service Provider");
@@ -404,6 +422,9 @@ class _ListOfServiceHistoryState extends State<ListOfServiceHistory> {
                           });
                           Navigator.of(context).pop();
                           }) );
+  Widget navigatebutton = RaisedButton(onPressed: ((){
+                          Navigate("43.7967876,-79.5331616",location);
+                }),child: Text("Location") );
   Widget rejectButton =  status == "0" || status == "3"?Container(): RaisedButton(onPressed: ((){
                           var token="0";
                           // sendnotification(custid,"Your order $orderid has been rejected by the vendor");
@@ -413,11 +434,11 @@ class _ListOfServiceHistoryState extends State<ListOfServiceHistory> {
                           });
                           Navigator.of(context).pop();
                 }),child: Text("Reject") );
-  Widget box = SizedBox(width: 75,);
+  Widget box = SizedBox(width: 5,);
 
   AlertDialog alert = AlertDialog(
     title: Center(child: Text("Orderid:  $orderid")),
-    content: Column(children: [
+    content: SingleChildScrollView(child: Column(children: [
       Align(alignment: Alignment.centerLeft,
         child:    Text("Order Title:  $title",textAlign: TextAlign.left,),),
       SizedBox(height: 20,),
@@ -445,9 +466,11 @@ class _ListOfServiceHistoryState extends State<ListOfServiceHistory> {
       Align(alignment: Alignment.centerLeft,
         child:    Text("Time: $time",textAlign: TextAlign.left,),),
 
-    ],),
+    ],),),
     actions: [
       rejectButton,
+      box,
+      navigatebutton,
       box,
       okButton,
     ],

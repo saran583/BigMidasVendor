@@ -1,5 +1,6 @@
 import 'package:bigmidasvendor/widgets/drawer.dart';
 import 'package:bigmidasvendor/widgets/myappbar.dart';
+import 'package:bigmidasvendor/widgets/testdraw.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 
@@ -29,7 +30,8 @@ class OrderdescriptionState extends State<Orderdescription> {
     return Scaffold(
           key: _scaffoldKey,
           appBar: getAppBar(_scaffoldKey,context),
-          drawer: drawer(context, "username", "balance"),
+          // drawer: drawer(context, "username", "balance"),
+          drawer: TestDraw(),
           //body:modelShopOrders==null||modelShopOrders.products==null?Center(child: CircularProgressIndicator(),):Container(
           body:Container(child: Center(child: Text("Hello"),)));
     

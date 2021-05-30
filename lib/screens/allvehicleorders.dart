@@ -7,11 +7,13 @@ import 'package:bigmidasvendor/model/modeluser.dart';
 import 'package:bigmidasvendor/provider/providerlogn.dart';
 import 'package:bigmidasvendor/provider/providersubscriptionplan.dart';
 import 'package:bigmidasvendor/sharedpreference/loginpreferenc.dart';
+import 'package:bigmidasvendor/widgets/testdraw.dart';
 import 'package:bigmidasvendor/widgets/drawer.dart';
 import 'package:bigmidasvendor/widgets/myappbar.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart'as http;
+import 'package:url_launcher/url_launcher.dart';
 import '../common.dart';
 import 'VichleHistory.dart';
 import 'package:share/share.dart';
@@ -53,7 +55,7 @@ class _AllVehicleOrdersState extends State<AllVehicleOrders> {
      Scaffold(
        key: _scaffoldKey,
        appBar: getAppBar(_scaffoldKey,context),
-         drawer: drawer(context, "username", "balance"),
+         drawer: TestDraw(),
          body:Container(
            height: size.height,
            width: size.width,
@@ -197,6 +199,15 @@ class _AllVehicleOrdersState extends State<AllVehicleOrders> {
 
   }
 
+  void Navigate(String destination) async {
+    var url="https://www.google.com/maps/dir/?api=1&destination=$destination&travelmode=driving&dir_action=navigate";
+    if(await canLaunch(url)){
+      await launch(url);
+    } else {
+      print("Cannot Launch");
+    }
+  }
+
   // void sendnotification(String cusid, String msg) async{
   //   String url='https://admin.bigmidas.com:7420/store/sendnotificationtocustomer';
   //   var request = http.Request('POST', Uri.parse(url));
@@ -249,6 +260,9 @@ void showAlert(BuildContext context,val,id,cname,cid,cphone,orderid,status,booki
                           });
                           Navigator.of(context).pop();
                           }) );
+  Widget navigatebutton = RaisedButton(onPressed: ((){
+                          status=="2"?Navigate(bookingto):Navigate(bookingfrom);
+                }),child: Text("Location") );
   Widget rejectButton =  status=="0"||status=="3"?Container():RaisedButton(onPressed: ((){
                           var token="0";
                           updatestatus(id.toString(),token,cid,"Your request $orderid has been rejected by the vendor");
@@ -258,11 +272,11 @@ void showAlert(BuildContext context,val,id,cname,cid,cphone,orderid,status,booki
                           });
                           Navigator.of(context).pop();
                 }),child: Text("Reject") );
-  Widget box = SizedBox(width: 75,);
+  Widget box = SizedBox(width: 5,);
 
   AlertDialog alert = AlertDialog(
     title: Center(child: Text("Orderid:  $orderid"),),
-    content: Column(children: [
+    content: SingleChildScrollView(child: Column(children: [
       Align(alignment: Alignment.centerLeft,
         child:    Text("CustomerName:  $cname",textAlign: TextAlign.left,),),
       SizedBox(height: 20,),
@@ -291,9 +305,11 @@ void showAlert(BuildContext context,val,id,cname,cid,cphone,orderid,status,booki
         child:    Text("Time: $time",textAlign: TextAlign.left,),),
 
 
-    ],),
+    ],),),
     actions: [
       rejectButton,
+      box,
+      navigatebutton,
       box,
       okButton,
     ],
@@ -407,7 +423,11 @@ Widget getProductWidget(value,id,cname,cid,cphone,orderid,status,bookingto,booki
                         setState((){
                           modelVehicleOrders.products.removeAt(value);});
                            }), child: Text("Reject"), ),
-                           SizedBox(width: 35,),
+                           SizedBox(width: 5,),
+                RaisedButton(onPressed: ((){
+                          status=="2"?Navigate(bookingto):Navigate(bookingfrom);
+                }),child: Text("Location") ),
+                           SizedBox(width: 5,),
                            RaisedButton(onPressed: ((){ 
                           // sendnotification(cid,status=="2"?"Your request $orderid has been fullfilled successfully!!":"Your order $orderid has been accepted by the Vendor");
                           updatestatus(id.toString(),status=="2"?"3":"2",cid,status=="2"?"Your request $orderid has been fullfilled successfully!!":"Your order $orderid has been accepted by the Vendor");

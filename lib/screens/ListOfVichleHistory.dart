@@ -1,4 +1,5 @@
 
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:bigmidasvendor/model/modalmycurrentsubs.dart';
@@ -8,10 +9,13 @@ import 'package:bigmidasvendor/provider/providerlogn.dart';
 import 'package:bigmidasvendor/provider/providersubscriptionplan.dart';
 import 'package:bigmidasvendor/sharedpreference/loginpreferenc.dart';
 import 'package:bigmidasvendor/widgets/drawer.dart';
+import 'package:bigmidasvendor/widgets/testdraw.dart';
 import 'package:bigmidasvendor/widgets/myappbar.dart';
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart'as http;
+import 'package:url_launcher/url_launcher.dart';
 import '../common.dart';
 import 'VichleHistory.dart';
 import 'package:share/share.dart';
@@ -26,6 +30,7 @@ class _ListOfVichleHistoryState extends State<ListOfVichleHistory> {
   int showDetails = 0;
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   int load = 0;
+  Timer timer;
 
 
   static List<Widget> _widgetOptions1 = <Widget>[
@@ -41,7 +46,25 @@ class _ListOfVichleHistoryState extends State<ListOfVichleHistory> {
     super.initState();
     getOrders("1");
     getPlans();
+    getlocation();
 
+        timer = Timer.periodic(Duration(seconds: 300), (Timer t) =>getlocation());
+        
+  }
+
+  getlocation() async{
+    String vendorId1=Provider.of<ProviderLogin>(context,listen:false).modelUser.sId;
+    final pos = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+    print("this is the Lat&Long");
+    var lat=pos.toString().split(",")[0];
+    var long=pos.toString().split(",")[1];
+
+
+    String url='https://admin.bigmidas.com:7420/store/updatedriverlocation/$vendorId1&&${lat.split(":")[1].trim()},${long.split(":")[1].trim()}';
+    print(url);
+    var request = http.Request('GET', Uri.parse(url));
+    http.StreamedResponse response = await request.send();
+    print("updated driver location");
   }
 
   @override
@@ -52,7 +75,7 @@ class _ListOfVichleHistoryState extends State<ListOfVichleHistory> {
      Scaffold(
        key: _scaffoldKey,
        appBar: getAppBar(_scaffoldKey,context),
-         drawer: drawer(context, "username", "balance"),
+         drawer: TestDraw(),
          body:Container(
            height: size.height,
            width: size.width,
@@ -247,6 +270,15 @@ class _ListOfVichleHistoryState extends State<ListOfVichleHistory> {
 
   }
 
+  void Navigate(String destination) async {
+    var url="https://www.google.com/maps/dir/?api=1&destination=$destination&travelmode=driving&dir_action=navigate";
+    if(await canLaunch(url)){
+      await launch(url);
+    } else {
+      print("Cannot Launch");
+    }
+  }
+
   // void sendnotification(String cusid, String msg) async{
   //   String url='https://admin.bigmidas.com:7420/store/sendnotificationtocustomer';
   //   var request = http.Request('POST', Uri.parse(url));
@@ -299,6 +331,9 @@ void showAlert(BuildContext context,val,id,cname,cid,cphone,orderid,status,booki
                           });
                           Navigator.of(context).pop();
                           }) );
+  Widget navigatebutton = RaisedButton(onPressed: ((){
+                          status=="2"?Navigate(bookingfrom):Navigate(bookingto);
+                }),child: Text("Location") );
   Widget rejectButton =  status=="0"||status=="3"?Container():RaisedButton(onPressed: ((){
                           var token="0";
                           updatestatus(id.toString(),token,cid,"Your request $orderid has been rejected by the vendor");
@@ -308,11 +343,11 @@ void showAlert(BuildContext context,val,id,cname,cid,cphone,orderid,status,booki
                           });
                           Navigator.of(context).pop();
                 }),child: Text("Reject") );
-  Widget box = SizedBox(width: 75,);
+  Widget box = SizedBox(width: 5,);
 
   AlertDialog alert = AlertDialog(
     title: Center(child: Text("Orderid:  $orderid"),),
-    content: Column(children: [
+    content: SingleChildScrollView(child: Column(children: [
       Align(alignment: Alignment.centerLeft,
         child:    Text("CustomerName:  $cname",textAlign: TextAlign.left,),),
       SizedBox(height: 20,),
@@ -341,9 +376,11 @@ void showAlert(BuildContext context,val,id,cname,cid,cphone,orderid,status,booki
         child:    Text("Time: $time",textAlign: TextAlign.left,),),
 
 
-    ],),
+    ],),),
     actions: [
       rejectButton,
+      box,
+      navigatebutton,
       box,
       okButton,
     ],
@@ -457,7 +494,11 @@ Widget getProductWidget(value,id,cname,cid,cphone,orderid,status,bookingfrom,boo
                         setState((){
                           modelVehicleOrders.products.removeAt(value);});
                            }), child: Text("Reject"), ),
-                           SizedBox(width: 35,),
+                           SizedBox(width: 5,),
+                         RaisedButton(onPressed: ((){
+                          status=="2"?Navigate(bookingfrom):Navigate(bookingto);
+                            }),child: Text("Location") ),
+                           SizedBox(width: 5,),
                            RaisedButton(onPressed: ((){ 
                           // sendnotification(cid,status=="2"?"Your request $orderid has been fullfilled successfully!!":"Your order $orderid has been accepted by the Vendor");
                           updatestatus(id.toString(),status=="2"?"3":"2",cid,status=="2"?"Your request $orderid has been fullfilled successfully!!":"Your order $orderid has been accepted by the Vendor");

@@ -31,6 +31,7 @@ class Products {
   String ordernote;
   int discountedprodprice;
   String deliverycharges;
+  String address;
   // int freedelivery;
   String totalprice;
   int quantity;
@@ -48,6 +49,7 @@ class Products {
         this.customerphone,
         this.discountedprodprice,
         this.deliverycharges,
+        this.address,
         // this.freedelivery,
         this.totalprice,
         this.quantity,
@@ -69,6 +71,7 @@ class Products {
     discountedprodprice = json['discountedprodprice'];
     totalprice = json['totalprice'];
     deliverycharges = json['deliverycharges'];
+    address = json['address'];
     // freedelivery = json['freedelivery'];
     quantity = json['quantity'];
     orederid = json['orederid'].toString();
@@ -89,6 +92,7 @@ class Products {
     data['discountedprodprice'] = this.discountedprodprice;
     data['totalprice'] = this.totalprice;
     data['deliverycharges'] = this.deliverycharges;
+    data['address'] = this.address;
     // data['freedelivery'] = this.freedelivery;
     data['quantity'] = this.quantity;
     data['orederid'] = this.orederid;

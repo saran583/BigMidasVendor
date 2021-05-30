@@ -1,4 +1,5 @@
 import 'dart:io';
+// import 'dart:js';
 import 'package:bigmidasvendor/model/modeluser.dart';
 import 'package:bigmidasvendor/provider/providerlogn.dart';
 import 'package:device_info/device_info.dart';
@@ -11,6 +12,7 @@ import 'package:provider/provider.dart';
 import '../common.dart';
 
 final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
  String firebaseToken;
  void setupFirebase()
 {
@@ -27,6 +29,7 @@ final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
 
 void initFirebase(context){
   firebaseCallBacks(context);
+
 }
 firebaseCallBacks(context) {
   print("firebasecallbacks");
@@ -115,7 +118,7 @@ firebaseCallBacks(context) {
   _firebaseMessaging.getToken().then((String token) {
     assert(token != null);
     //setState(() {
-    firebaseToken = token;;
+    firebaseToken = token;
 
     insertToken(token,context);
   });
@@ -216,11 +219,14 @@ _downloadAndSaveFile(String url, String fileName) async {
 
 
 FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
-Future onSelectNotification(String payload) {
+Future onSelectNotification( String payload) {
+  BuildContext context;
   debugPrint("payload : $payload");
+  Navigator.pushNamed(context,payload);
+  print("pushed to screen");
   //navigationForBothNotificationanddeepLink(payload);
-  // Navigator.pushReplacementNamed(navigatorKey.currentState.context, payload,
-  //     arguments: false);
+  // Navigator.pushReplacementNamed(navigatorKey.currentState.context, "/"+payload,
+      // arguments: false);
   // showDialog(
   //   context: context,
   //   builder: (_) => new AlertDialog(

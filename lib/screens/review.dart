@@ -6,6 +6,7 @@ import 'package:bigmidasvendor/provider/providerlogn.dart';
 import 'package:bigmidasvendor/widgets/drawer.dart';
 import 'package:bigmidasvendor/widgets/myappbar.dart';
 import 'package:bigmidasvendor/widgets/reviewcard.dart';
+import 'package:bigmidasvendor/widgets/testdraw.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
@@ -52,7 +53,9 @@ class _ReviewListStateView extends State<ReviewListView> {
       reviewTitle="Review on your Service:";
     return Scaffold(
         key: _scaffoldKey,
-      drawer: drawer(context, "username", "balance"),
+      // drawer: drawer(context, "username", "balance"),
+      drawer: TestDraw(),
+
         appBar: getAppBar(_scaffoldKey,context),
         body: listReviews==null
             ?Center(child: CircularProgressIndicator(),)

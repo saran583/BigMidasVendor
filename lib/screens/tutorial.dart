@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:bigmidasvendor/model/modalvideos.dart';
 import 'package:bigmidasvendor/widgets/drawer.dart';
 import 'package:bigmidasvendor/widgets/myappbar.dart';
+import 'package:bigmidasvendor/widgets/testdraw.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
@@ -38,7 +39,8 @@ class TutorialState extends State<Tutorial>
     return Scaffold(
         key: _scaffoldKey,
       appBar: getAppBar(_scaffoldKey, context),
-      drawer: drawer(context,"Mohit","100"),
+      // drawer: drawer(context,"Mohit","100"),
+      drawer: TestDraw(),
       body:  SingleChildScrollView(child: Column(crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(

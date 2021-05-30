@@ -20,6 +20,14 @@ String SUBSCRIPTION_PLAN_STORE=BASE_URL+"/subscriptionplan";
 String SUBSCRIPTION_PLAN_VEHICLE=BASE_URL+"/subscriptionplan-vehicle";
 String SUBSCRIPTION_PLAN_SERVICE=BASE_URL+"/subscriptionplan-service";
 
+String EDITSTOREACTIVE = BASE_URL+"/editshopactive";
+String EDITVEHICLEACTIVE = BASE_URL+"/editvehicleactive";
+String EDITSERVICEACTIVE = BASE_URL+"/editserviceactive";
+
+String GETSTOREACTIVE = BASE_URL+"/getshopactive";
+String GETVEHICLEACTIVE = BASE_URL+"/getvehicleactive";
+String GETSERVICEACTIVE = BASE_URL+"/getserviceactive";
+
 String UPDATE_SUBSCRIPTION_STORE=BASE_URL+"/subscription";
 String UPDATE_SUBSCRIPTION_VEHICLE=BASE_URL+"/subscription-vehicle";
 String UPDATE_SUBSCRIPTION_SERVICE=BASE_URL+"/subscription-service";

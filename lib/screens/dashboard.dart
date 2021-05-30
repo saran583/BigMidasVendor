@@ -5,6 +5,7 @@ import 'package:bigmidasvendor/provider/providersubscriptionplan.dart';
 import 'package:bigmidasvendor/screens/editproduct.dart';
 import 'package:bigmidasvendor/sharedpreference/loginpreferenc.dart';
 import 'package:bigmidasvendor/widgets/drawer.dart';
+import 'package:bigmidasvendor/widgets/testdraw.dart';
 import 'package:bigmidasvendor/widgets/myappbar.dart';
 import 'package:bigmidasvendor/widgets/vehicleorders.dart';
 
@@ -46,7 +47,8 @@ class DashboardState extends State<DashBoard>
     // TODO: implement build
     return Scaffold(
       key: _scaffoldKey,
-      drawer: drawer(context,"Mohit","100"),
+      // drawer: drawer(context,"Mohit","100"),
+      drawer: TestDraw(),
       appBar: getAppBar(_scaffoldKey,context),
       body: getDashboardDataDependingOnCategory(context),
     );

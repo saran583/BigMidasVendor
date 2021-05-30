@@ -5,7 +5,7 @@ import 'package:bigmidasvendor/common.dart';
 // import 'package:bigmidasvendor/model/modalvehicleorders.dart';
 // import 'package:bigmidasvendor/model/modelserviceorders.dart';
 // import 'package:bigmidasvendor/model/modelserviceorders.dart';
-
+import 'package:url_launcher/url_launcher.dart';
 import 'package:bigmidasvendor/model/modelshoporders.dart';
 import 'package:bigmidasvendor/model/modeluser.dart';
 import 'package:bigmidasvendor/provider/providerlogn.dart';
@@ -14,6 +14,7 @@ import 'package:bigmidasvendor/provider/providersubscriptionplan.dart';
 import 'package:bigmidasvendor/screens/Orderdescription.dart';
 import 'package:bigmidasvendor/sharedpreference/loginpreferenc.dart';
 import 'package:bigmidasvendor/widgets/drawer.dart';
+import 'package:bigmidasvendor/widgets/testdraw.dart';
 import 'package:bigmidasvendor/widgets/myappbar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -84,7 +85,7 @@ class _ListOfHistoryState extends State<ListOfHistory> {
       Scaffold(
           key: _scaffoldKey,
           appBar: getAppBar(_scaffoldKey,context),
-          drawer: drawer(context, "username", "balance"),
+          drawer: TestDraw(),
           //body:modelShopOrders==null||modelShopOrders.products==null?Center(child: CircularProgressIndicator(),):Container(
           body:Provider.of<ProviderShop>(context,listen:true).isLoadingOrders?Center(child: CircularProgressIndicator(),):Container(
             // height: size.height,
@@ -207,6 +208,11 @@ class _ListOfHistoryState extends State<ListOfHistory> {
   }
     void updatestatus(String orderid, String val, String cusid, String msg) async{
 
+      print(orderid);
+      print(val);
+      print(cusid);
+      print(msg);
+
     String url=UPDATE_STORE_ORDER_STATUS;
 
     var request = http.Request('POST', Uri.parse(url));
@@ -232,6 +238,17 @@ class _ListOfHistoryState extends State<ListOfHistory> {
     print(response.reasonPhrase);
     }
 
+  }
+
+  void Navigate(String destination) async {
+    var url="https://www.google.com/maps/dir/?api=1&destination=$destination&travelmode=driving&dir_action=navigate";
+    // var url="https://www.google.com/maps/dir/Current+Location/${destination}/&travelmode=driving&dir_action=navigate";
+
+    if(await canLaunch(url)){
+      await launch(url);
+    } else {
+      print("Cannot Launch");
+    }
   }
 
   // void sendnotification(String cusid, String msg) async{
@@ -262,7 +279,7 @@ Widget getOrderWidget(int value,Products products){
       showAlert(context, products.sId,
       products.productname,products.quantity,products.customerid,products.customername,
       products.customerphone,products.prodctcost,products.discountedprodprice,
-      products.status,products.ordernote, products.orederid,products.ordertime,value,products.totalprice,products.deliverycharges);
+      products.status,products.ordernote, products.orederid,products.ordertime,value,products.totalprice,products.deliverycharges,products.address);
       // Navigator.pushNamed(context, Orderdescription.routeName,arguments: products );
     },  child:  Container(
         decoration: BoxDecoration(border: Border.all(color: Colors.grey[300])),
@@ -326,7 +343,11 @@ Widget getOrderWidget(int value,Products products){
                           modelShopOrders.products.removeAt(value);
                           });
                 }),child: products.status=="2"?Text("Completed"):Text("Accept"), ),
-                SizedBox(width: 35,),
+                SizedBox(width: 5,),
+                RaisedButton(onPressed: ((){
+                          Navigate(products.address.split(":")[0]);
+                }),child: Text("Location") ),
+                SizedBox(width: 5,),
                 RaisedButton(onPressed: ((){
                           var token="0";
                           // sendnotification(products.customerid,"Your order ${products.orederid} has been rejected by the Vendor");
@@ -343,7 +364,7 @@ Widget getOrderWidget(int value,Products products){
 }
 
 void showAlert(BuildContext context, pId,productname,int quantity,customerid,customername,customerphone,
-      int cost,int discountedprodprice,status,ordernote,orederid,ordertime,val,totalprice,deliverycharges){
+      int cost,int discountedprodprice,status,ordernote,orederid,ordertime,val,totalprice,deliverycharges,address){
     // var tp= int.parse(cost) * int.parse(quantity);
     // print(totalprice);
 
@@ -359,6 +380,9 @@ void showAlert(BuildContext context, pId,productname,int quantity,customerid,cus
                           });
                           Navigator.of(context).pop();
                           }) );
+  Widget navigatebutton = RaisedButton(onPressed: ((){
+                          Navigate(address.split(":")[0]);
+                }),child: Text("Location") );
   Widget rejectButton =  status=="3"||status=="0"?Container():RaisedButton(onPressed: ((){
                           var token="0";
                           updatestatus(pId.toString(),token,customerid,"Your order $orederid has been rejected by the Vendor");
@@ -368,11 +392,11 @@ void showAlert(BuildContext context, pId,productname,int quantity,customerid,cus
                           });
                           Navigator.of(context).pop();
                 }),child: Text("Reject") );
-  Widget box = SizedBox(width: 75,);
+  Widget box = SizedBox(width: 5,);
 
   AlertDialog alert = AlertDialog(
     title: Center(child: Text("OrderId: $orederid")),
-    content: Column(children: [
+    content: SingleChildScrollView(child:  Column(children: [
       Align(alignment: Alignment.centerLeft,
         child:    Text("ProductName:  $productname",textAlign: TextAlign.left,),),
       SizedBox(height: 20,),
@@ -394,9 +418,9 @@ void showAlert(BuildContext context, pId,productname,int quantity,customerid,cus
       Align(alignment: Alignment.centerLeft,
         child:    Text("Delivery Charges of order ${orederid.split("-")[0]}: ${deliverycharges==null?0:deliverycharges}",textAlign: TextAlign.left,),),
       SizedBox(height: 20,),
-      // Align(alignment: Alignment.centerLeft,
-      //   child:    Text("DiscountPrice:  $discountedprodprice",textAlign: TextAlign.left,),),
-      // SizedBox(height: 20,),
+      Align(alignment: Alignment.centerLeft,
+        child:    Text("Address:  ${address.split(":")[1]}",textAlign: TextAlign.left,),),
+      SizedBox(height: 20,),
       Align(alignment: Alignment.centerLeft,
         child:    Text("OrderStatus:  ${status=="1"?'Pending':status=="2"?'Confirmed':status=="0"?'Rejected':'Completed'}",textAlign: TextAlign.left,),),
       SizedBox(height: 20,),
@@ -411,10 +435,10 @@ void showAlert(BuildContext context, pId,productname,int quantity,customerid,cus
 
 
 
-    ],),
+    ],),),
     actions: [
       rejectButton,
-      box,
+      navigatebutton,
       okButton,
     ],
   );
