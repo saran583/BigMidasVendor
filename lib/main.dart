@@ -47,18 +47,32 @@ void main() {
 
   WidgetsFlutterBinding.ensureInitialized();
   
-  setupFirebase();
+  
   runApp(MyApp());
 }
 
 class MyApp extends StatefulWidget {
+  String routeto;
+
+  MyApp({
+    this.routeto
+  });
+
   @override
   State<StatefulWidget> createState() {
+
     // TODO: implement createState
-    return MyAppState();
+
+    return MyAppState(routeto: this.routeto);
   }
 }
 class MyAppState extends State<MyApp>{
+  String routeto;
+  MyAppState({String routeto}) {
+      this.routeto = routeto;
+  }
+
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 
   @override
@@ -80,6 +94,12 @@ class MyAppState extends State<MyApp>{
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+    // setupFirebase(context);
+
+     if (this.routeto!=null) {
+      debugPrint("this is in main");
+      Navigator.pushNamed(context, this.routeto);
+    }
     return MultiProvider(providers: [
 
       ChangeNotifierProvider<ProviderLogin>(
@@ -98,6 +118,7 @@ class MyAppState extends State<MyApp>{
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         title: 'Flutter Demo',
+        navigatorKey: navigatorKey,
         theme: ThemeData(
           fontFamily: 'Regular'
 

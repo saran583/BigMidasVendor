@@ -47,6 +47,7 @@ class LoginOrRegisterOptionState extends State<LoginOrRegisterOption>{
   }
   @override
   Widget build(BuildContext context) {
+
     // TODO: implement build
     return Scaffold(
       backgroundColor: Colors.white,

@@ -1,8 +1,12 @@
 import 'dart:io';
 // import 'dart:js';
+// import 'dart:js';
 import 'package:bigmidasvendor/model/modeluser.dart';
 import 'package:bigmidasvendor/provider/providerlogn.dart';
+import 'package:bigmidasvendor/screens/ListOfHistory.dart';
+import 'package:bigmidasvendor/screens/ListOfVichleHistory.dart';
 import 'package:device_info/device_info.dart';
+import '../main.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -10,12 +14,15 @@ import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import '../common.dart';
+import 'package:get/get.dart';
 
 final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
-final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+BuildContext contextstate;
+
  String firebaseToken;
- void setupFirebase()
+ void setupFirebase(BuildContext context)
 {
+  contextstate = context;
   flutterLocalNotificationsPlugin = new FlutterLocalNotificationsPlugin();
   var android = new AndroidInitializationSettings(
       '@mipmap/ic_launcher');
@@ -219,13 +226,21 @@ _downloadAndSaveFile(String url, String fileName) async {
 
 
 FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
-Future onSelectNotification( String payload) {
-  BuildContext context;
+Future onSelectNotification( String payload){
+  // BuildContext context;
   debugPrint("payload : $payload");
-  Navigator.pushNamed(context,payload);
+  debugPrint("this is context $contextstate");
+  // MyApp(routeto: payload);
+  // Get.to(ListOfVichleHistory());
+  // Get.back();
+
+  Navigator.of(contextstate).pushNamed(ListOfVichleHistory.routeName);
+  // navigatorKey.currentState.pushNamed('/someRoute');
   print("pushed to screen");
   //navigationForBothNotificationanddeepLink(payload);
-  // Navigator.pushReplacementNamed(navigatorKey.currentState.context, "/"+payload,
+    
+  
+  // Navigator.pushReplacementNamed(contextstate, ListOfVichleHistory.routeName);
       // arguments: false);
   // showDialog(
   //   context: context,

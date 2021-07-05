@@ -1,3 +1,4 @@
+import 'package:bigmidasvendor/fcm/myfirebase.dart';
 import 'package:bigmidasvendor/screens/listing.dart';
 import 'package:bigmidasvendor/sharedpreference/loginpreferenc.dart';
 import 'package:bigmidasvendor/utils/hexcolor.dart';
@@ -21,6 +22,7 @@ class SelectServiceState extends State<SelectService>
 {
   @override
   Widget build(BuildContext context) {
+    // setupFirebase(context);
     // TODO: implement build
     return Scaffold(
 
