@@ -37,6 +37,7 @@ class AddProductState extends State<AddProduct>
 {
   var dropdownValue;
   bool isLoading=false;
+  bool edit=false;
 
 
   String productName,catId,subcatId,disprice,unit,stock,description;
@@ -84,6 +85,12 @@ class AddProductState extends State<AddProduct>
     super.initState();
     SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
       product=ModalRoute.of(context).settings.arguments;
+      print("these are the args $product");
+      if(product!=null){
+        setState(() {
+                  edit=true;
+                });
+      }
       getCategory();
     });
 
@@ -336,7 +343,7 @@ class AddProductState extends State<AddProduct>
                 ),
                 Container(
                   margin: EdgeInsets.all(20),
-                  child: isLoading?CircularProgressIndicator():getAwesomeButton("Add Product",()async{
+                  child: isLoading?CircularProgressIndicator():getAwesomeButton(edit==true?"Edit Product":"Add Product",()async{
 
                     if(!_keyValidationForm.currentState.validate())return;
                     if(subcatId==null)
@@ -411,7 +418,7 @@ class AddProductState extends State<AddProduct>
                         msg['msg']="Product Added";
                       getCustomDialog(
                           context,
-                          "Request processed",
+                          edit==true?"Product Edited":"Product Added",
                           "${msg['msg']}",
                           DialogType.INFO,oktext: "Okay",okFunc: (){
                             Navigator.pushReplacementNamed(context, EditProduct.routeName);

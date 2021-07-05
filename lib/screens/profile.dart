@@ -1,16 +1,19 @@
 import 'dart:io';
-
 import 'package:bigmidasvendor/model/modelprofile.dart';
 import 'package:bigmidasvendor/provider/providerlogn.dart';
 import 'package:bigmidasvendor/widgets/drawer.dart';
 import 'package:bigmidasvendor/widgets/myappbar.dart';
 import 'package:bigmidasvendor/widgets/testdraw.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:http_parser/http_parser.dart';
+import 'package:url_launcher/url_launcher.dart';
+
+import '../common.dart';
 
 class Profile extends StatefulWidget
 {
@@ -36,6 +39,8 @@ class ProfileState extends State<Profile>
   String kmserving;
   // String servicekmserving;
   // String vehiclekmserving;
+  File profilepic;
+  bool updatepic = false;
   File files;
   TextEditingController controllerPhotos=TextEditingController();
   TextEditingController controllerPhotos1=TextEditingController();
@@ -67,7 +72,7 @@ class ProfileState extends State<Profile>
 
       child:Column(children: [
         Container(
-          height: size.height/3+100,
+          height: size.height/3+125,
           width: size.width-20,
           child: Card(
             elevation: 20,
@@ -82,15 +87,25 @@ class ProfileState extends State<Profile>
 
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-              Container(
-
+              Stack(children: [
+                Container(
                 height: 120,
-                child: Image.asset("assets/images/circular_image2.png"),
-
+                child: profilepic.toString().length>10?Image.file(profilepic):vendor.image.toString().length>1?Image.network("https://admin.bigmidas.com/"+vendor.image):Image.asset("assets/images/circular_image2.png"),
+                // Image.asset(profilepic.path)
                 width: 120,
-
                 margin: EdgeInsets.only(left: 5,top: 20),
               ),
+              Positioned(
+                bottom: 0,
+                // left:0,
+                right:0,
+                child: InkWell(child:CircleAvatar( backgroundColor: Colors.orange[800] , radius: 15,child: Text("+"),), 
+              onTap: (){
+                changeprofilepic();
+              },
+              ),
+              )
+              ],),
              Container(
                margin: EdgeInsets.only(top: 30),
                child: Column(
@@ -103,6 +118,11 @@ class ProfileState extends State<Profile>
                  Text("Phone Number - ${vendor.phonenumber}",style: TextStyle(color: Colors.red,fontSize: 16),),
                  SizedBox(height: 5,),
                  Text("State/Country - India",style: TextStyle(color: Colors.red,fontSize: 16),),
+                 SizedBox(height: 5,),
+                 updatepic==true?RaisedButton( color: Colors.orange[800], child: Text("Update Profile"), onPressed: (){
+                                    updateprofilepic();
+                                 }, ):SizedBox(height: 1,),
+                 
                ],
              ) ,)
             ],
@@ -128,6 +148,7 @@ class ProfileState extends State<Profile>
                   fontWeight: FontWeight.bold,
                   fontSize: 16),
             ),
+            
             show==true ? RaisedButton(
               color: Colors.orange[800],
               child: Text("Update"),
@@ -167,16 +188,8 @@ class ProfileState extends State<Profile>
         if(Provider.of<ProviderLogin>(context).userType=="vehicle")
           Container(
             margin: EdgeInsets.only(left: 20,top: 20, right: 20),
-            alignment: Alignment.centerLeft,child:  Column( children:[Text("How many km serving: ${vendor.vehiclekmServing.toString()=="null"?"0":vendor.vehiclekmServing.toString()} km",style: TextStyle(fontWeight: FontWeight.bold,fontSize: 16),), TextFormField(
-              initialValue: vendor.vehiclekmServing.toString()=="null"?"0":vendor.vehiclekmServing.toString(),
-              onChanged: (text)=>{ setState(()  {show1 = true;}), setState((){vendor.vehiclekmServing=text;})},
-              textAlign: TextAlign.center,
-              decoration: InputDecoration(hintText: " "),
-              keyboardType: TextInputType.number,
-              style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16),
-            ),Text("Per KM Charges: ${vendor.kmCharges.toString()=="null"?"0":vendor.kmCharges}",style: TextStyle(fontWeight: FontWeight.bold,fontSize: 16),), TextFormField(
+            alignment: Alignment.centerLeft,child:  Column( children:[Text("km serving: 5 km",style: TextStyle(fontWeight: FontWeight.bold,fontSize: 16),),
+            Text("Per KM Charges: ${vendor.kmCharges.toString()=="null"?"0":vendor.kmCharges}",style: TextStyle(fontWeight: FontWeight.bold,fontSize: 16),), TextFormField(
               initialValue: vendor.kmCharges.toString()=="null"?"0":vendor.kmCharges.toString(),
               onChanged: (text)=>{ setState(() { show1 = true;}), setState((){vendor.kmCharges=text;})},
               textAlign: TextAlign.center,
@@ -243,7 +256,7 @@ class ProfileState extends State<Profile>
                 for(int i=0;i<vendor.shopimages[0].length;i++)
                   Column(children: [
                     // Text(vendor.shopimages[0][i]),
-                    Container ( child: Image.network("https://admin.bigmidas.com:7420/"+vendor.shopimages[0][i],height: 120,width: 120,fit: BoxFit.fill,),margin: EdgeInsets.only(left: 10),),
+                    Container ( child: Image.network("https://admin.bigmidas.com/"+vendor.shopimages[0][i],height: 120,width: 120,fit: BoxFit.fill,),margin: EdgeInsets.only(left: 10),),
                     GestureDetector(
                       onTap: (){
                         setState(() {
@@ -290,7 +303,8 @@ class ProfileState extends State<Profile>
 
                       children: [
                       Text("Add Photo"),
-                      Icon(Icons.add,size: 40,)
+                      Icon(Icons.add,size: 40,),
+                      
                     ],),),)
 
               ],
@@ -311,7 +325,7 @@ class ProfileState extends State<Profile>
                 for(int i=0;i<vendor.vehicleimages[0].length;i++)
                   Column(children: [
                     // Text(vendor.vehicleimages[0][i]),
-                    Container ( child: Image.network("https://admin.bigmidas.com:7420/"+vendor.vehicleimages[0][i],height: 120,width: 120,fit: BoxFit.fill,),margin: EdgeInsets.only(left: 10),),
+                    Container ( child: Image.network("https://admin.bigmidas.com/"+vendor.vehicleimages[0][i],height: 120,width: 120,fit: BoxFit.fill,),margin: EdgeInsets.only(left: 10),),
                     GestureDetector(
                       onTap: (){
                         setState(() {
@@ -381,7 +395,7 @@ class ProfileState extends State<Profile>
                 for(int i=0;i<vendor.serviceimages[0].length;i++)
                   Column(children: [
                     // Text(vendor.serviceimages[0][i]),
-                    Container ( child: Image.network("https://admin.bigmidas.com:7420/"+vendor.serviceimages[0][i],height: 120,width: 120,fit: BoxFit.fill,),margin: EdgeInsets.only(left: 10),),
+                    Container ( child: Image.network("https://admin.bigmidas.com/"+vendor.serviceimages[0][i],height: 120,width: 120,fit: BoxFit.fill,),margin: EdgeInsets.only(left: 10),),
                     GestureDetector(
                       onTap: (){
                         setState(() {
@@ -461,6 +475,41 @@ class ProfileState extends State<Profile>
 });
   }
 
+    void changeprofilepic() async {
+    FilePicker filePicker = FilePicker.platform;
+    Set allowedExtension = Set();
+    allowedExtension.add("PDF");
+    allowedExtension.add("pdf");
+    FilePickerResult pickedFile2=await filePicker.pickFiles(allowMultiple: false);
+    setState(() {
+    profilepic=File(pickedFile2.files[0].path);
+        });
+    if(profilepic.toString().length > 1){
+      setState(() {
+              updatepic = true;
+            });
+            print("this is profile path ${profilepic.path}");
+    }
+  }
+
+  void updateprofilepic()async {
+    String vendorId1=Provider.of<ProviderLogin>(context,listen:false).modelUser.sId;
+
+    String url = UPDATE_PROFILE;
+
+    var request = http.MultipartRequest('POST', Uri.parse(url))
+    ..fields["id"]=vendorId1
+    ..files.add(await http.MultipartFile.fromPath(
+              'profilepic', '${profilepic.path}',
+              contentType: MediaType('image', 'png')));
+    
+        var response = await request.send();
+        print("REsponse of vehicle listing ${await response.stream.bytesToString()}");
+        setState(() {
+                  updatepic = false;
+                }); 
+  }
+
 
 
   void addimages(service) async{
@@ -468,7 +517,7 @@ class ProfileState extends State<Profile>
       print("this is image filename $k and ${productPhotos[k].path}");
     }
     String vendorId=Provider.of<ProviderLogin>(context,listen:false).modelUser.sId;
-    String url='https://admin.bigmidas.com:7420/store/add${service}images';
+    String url='https://admin.bigmidas.com/store/add${service}images';
         var headers = {
       'Content-Type': 'application/x-www-form-urlencoded'
     };
@@ -511,7 +560,7 @@ class ProfileState extends State<Profile>
     String vendorId2=Provider.of<ProviderLogin>(context,listen:false).modelUser.sId;
     List id=data.split("/").toList();
     print(id);
-    String url='https://admin.bigmidas.com:7420/store/delete${service}image/$vendorId2/${id[1]}';
+    String url='https://admin.bigmidas.com/store/delete${service}image/$vendorId2/${id[1]}';
     print(url);
     var request = http.Request('GET', Uri.parse(url));
     http.StreamedResponse response = await request.send();
@@ -533,7 +582,6 @@ class ProfileState extends State<Profile>
 
   }
 
-
    void selectFiles1()async {
     var file = await ImagePicker.pickImage(source: ImageSource.gallery);
     setState(() {
@@ -553,12 +601,9 @@ class ProfileState extends State<Profile>
 });
   }
 
-
-
-
   void getProfileData() async{
     String vendorId=Provider.of<ProviderLogin>(context,listen:false).modelUser.sId;
-    String url='https://admin.bigmidas.com:7420/store/vendor/$vendorId';
+    String url='https://admin.bigmidas.com/store/vendor/$vendorId';
     print(url);
     var request = http.Request('GET', Uri.parse(url));
 
@@ -583,7 +628,7 @@ class ProfileState extends State<Profile>
   void updatedeliverytype(type) async{
     String vendorId1=Provider.of<ProviderLogin>(context,listen:false).modelUser.sId;
     
-    String url='https://admin.bigmidas.com:7420/store/updatedeliverytype/$vendorId1';
+    String url='https://admin.bigmidas.com/store/updatedeliverytype/$vendorId1';
     print(url);
     var request = http.Request('PUT', Uri.parse(url));
     request.bodyFields = {
@@ -622,7 +667,7 @@ class ProfileState extends State<Profile>
                 });
       }
       print("entered store");
-          String url='https://admin.bigmidas.com:7420/store/storedistance/$vendorId';
+          String url='https://admin.bigmidas.com/store/storedistance/$vendorId';
     print(url);
     var request = http.Request('PUT', Uri.parse(url));
     request.bodyFields = {
@@ -652,7 +697,7 @@ class ProfileState extends State<Profile>
                 });
       }
       print("entered service");
-          String url='https://admin.bigmidas.com:7420/store/servicedistance/$vendorId';
+          String url='https://admin.bigmidas.com/store/servicedistance/$vendorId';
     print(url);
     var request = http.Request('PUT', Uri.parse(url));
     request.bodyFields = {
@@ -685,7 +730,7 @@ class ProfileState extends State<Profile>
                 });
       }
       print("entered vehicle");
-          String url='https://admin.bigmidas.com:7420/store/vehicledistance/$vendorId';
+          String url='https://admin.bigmidas.com/store/vehicledistance/$vendorId';
     print(url);
     var request = http.Request('PUT', Uri.parse(url));
     request.bodyFields = {
@@ -714,7 +759,7 @@ class ProfileState extends State<Profile>
 
   void updateaboutus() async{
     String vendorId=Provider.of<ProviderLogin>(context,listen:false).modelUser.sId;
-    String url='https://admin.bigmidas.com:7420/store/updateaboutus/$vendorId';
+    String url='https://admin.bigmidas.com/store/updateaboutus/$vendorId';
     print(url);
     var request = http.Request('PUT', Uri.parse(url));
     request.bodyFields = {

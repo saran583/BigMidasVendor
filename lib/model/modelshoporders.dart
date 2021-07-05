@@ -25,16 +25,16 @@ class ModelShopOrders {
 class Products {
   String sId;
   String productname;
-  int prodctcost;
   String customername;
   String customerphone;
   String ordernote;
-  int discountedprodprice;
+  String discountedprodprice;
   String deliverycharges;
   String address;
   // int freedelivery;
   String totalprice;
-  int quantity;
+  dynamic productimage;
+  String quantity;
   String orederid;
   String status;
   String ordertime;
@@ -44,7 +44,6 @@ class Products {
   Products(
       {this.sId,
         this.productname,
-        this.prodctcost,
         this.customername,
         this.customerphone,
         this.discountedprodprice,
@@ -52,6 +51,7 @@ class Products {
         this.address,
         // this.freedelivery,
         this.totalprice,
+        this.productimage,
         this.quantity,
         this.orederid,
         this.ordernote,
@@ -64,11 +64,11 @@ class Products {
   Products.fromJson(Map<String, dynamic> json) {
     sId = json['_id'];
     productname = json['productname'];
-    prodctcost = json['prodctcost'];
     customerid = json['customerid'];
     customername = json['customername'];
     customerphone = json['customerphone'].toString();
     discountedprodprice = json['discountedprodprice'];
+    productimage = json['productimage'];
     totalprice = json['totalprice'];
     deliverycharges = json['deliverycharges'];
     address = json['address'];
@@ -85,12 +85,12 @@ class Products {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data['_id'] = this.sId;
     data['productname'] = this.productname;
-    data['prodctcost'] = this.prodctcost;
     data['customername'] = this.customername;
     data['customerphone'] = this.customerphone;
     data['customerid'] = this.customerid;
     data['discountedprodprice'] = this.discountedprodprice;
     data['totalprice'] = this.totalprice;
+    data['productimage'] = this.productimage;
     data['deliverycharges'] = this.deliverycharges;
     data['address'] = this.address;
     // data['freedelivery'] = this.freedelivery;

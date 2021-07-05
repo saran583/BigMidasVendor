@@ -238,7 +238,7 @@ class EditSingleProductState extends State<EditSingleProduct>
                             controllerStock.text,
                             controllerDesc.text,
                             files,
-                          "http://162.241.201.237:7420/store/editproduct/${product.sId}",
+                          "http://162.241.201.237/store/editproduct/${product.sId}",
 
                         );
                         setState(() {
@@ -332,7 +332,7 @@ class EditSingleProductState extends State<EditSingleProduct>
   }
 
   void getCategory() async{
-    var request = http.Request('GET', Uri.parse('http://162.241.201.237:7420/store/shoplist/cat'));
+    var request = http.Request('GET', Uri.parse('http://162.241.201.237/store/shoplist/cat'));
 
 
     http.StreamedResponse response = await request.send();
@@ -362,7 +362,7 @@ class EditSingleProductState extends State<EditSingleProduct>
 
   void getSubCat(String cat) async{
     var request = http.Request('GET',
-        Uri.parse('http://162.241.201.237:7420/store/shoplist-sub/cat/$cat'));
+        Uri.parse('http://162.241.201.237/store/shoplist-sub/cat/$cat'));
 
 
 

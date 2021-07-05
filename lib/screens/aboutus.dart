@@ -57,7 +57,7 @@ class AboutUsState extends State<AboutUs>{
   }
 
   void getData()async {
-    var request = http.Request('GET', Uri.parse('https://admin.bigmidas.com:7420/store/getvendorpages'));
+    var request = http.Request('GET', Uri.parse('https://admin.bigmidas.com/store/getvendorpages'));
 
 
     http.StreamedResponse response = await request.send();

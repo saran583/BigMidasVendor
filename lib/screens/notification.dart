@@ -1,11 +1,13 @@
 import 'dart:convert';
 
 import 'package:bigmidasvendor/model/modelnotification.dart';
+import 'package:bigmidasvendor/provider/providerlogn.dart';
 import 'package:bigmidasvendor/widgets/drawer.dart';
 import 'package:bigmidasvendor/widgets/myappbar.dart';
 import 'package:bigmidasvendor/widgets/testdraw.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
 import '../common.dart';
 
 class AppNotification extends StatefulWidget
@@ -55,7 +57,8 @@ for(int i=0;i<listNotifications.length;i++)
   }
 
   void getNotifications() async{
-    String url = "$notifications";
+    String vendorId=Provider.of<ProviderLogin>(context,listen:false).modelUser.sId;
+    String url = "$VENDORMESSAGES/$vendorId";
     var request = http.Request('GET', Uri.parse(url));
 
     print("sub cat url $url");
@@ -66,7 +69,6 @@ for(int i=0;i<listNotifications.length;i++)
       print(strRes);
       ModelNotification modelNotification = ModelNotification.fromJson(json.decode(strRes));
       listNotifications=modelNotification.result;
-
 
       print("vehicle cate ${listNotifications.length}");
 
@@ -80,7 +82,7 @@ for(int i=0;i<listNotifications.length;i++)
   }
 
   getNotiWidget(Result modelNotification) {
-    return  modelNotification.type=="customer"?Container():Container(
+    return Container(
         margin: EdgeInsets.only(top: 20),
         width: double.infinity,
         child:Column(children: <Widget>[

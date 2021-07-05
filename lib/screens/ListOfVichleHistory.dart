@@ -7,6 +7,7 @@ import 'package:bigmidasvendor/model/modalvehicleorders.dart';
 import 'package:bigmidasvendor/model/modeluser.dart';
 import 'package:bigmidasvendor/provider/providerlogn.dart';
 import 'package:bigmidasvendor/provider/providersubscriptionplan.dart';
+import 'package:bigmidasvendor/screens/subscription.dart';
 import 'package:bigmidasvendor/sharedpreference/loginpreferenc.dart';
 import 'package:bigmidasvendor/widgets/drawer.dart';
 import 'package:bigmidasvendor/widgets/testdraw.dart';
@@ -60,7 +61,7 @@ class _ListOfVichleHistoryState extends State<ListOfVichleHistory> {
     var long=pos.toString().split(",")[1];
 
 
-    String url='https://admin.bigmidas.com:7420/store/updatedriverlocation/$vendorId1&&${lat.split(":")[1].trim()},${long.split(":")[1].trim()}';
+    String url='https://admin.bigmidas.com/store/updatedriverlocation/$vendorId1&&${lat.split(":")[1].trim()},${long.split(":")[1].trim()}';
     print(url);
     var request = http.Request('GET', Uri.parse(url));
     http.StreamedResponse response = await request.send();
@@ -92,8 +93,10 @@ class _ListOfVichleHistoryState extends State<ListOfVichleHistory> {
                    children: [
                      Text("Membership"),
                      SizedBox(width: 20,),
+                     InkWell(
+                      onTap: (){Navigator.pushNamed(context, Subscription.routeName);},
+                      child: 
                      Container(
-
                        margin: EdgeInsets.only(right: 10),
                        height: 50,
                        width: 50,
@@ -115,6 +118,7 @@ class _ListOfVichleHistoryState extends State<ListOfVichleHistory> {
                          ),
                        ),
                      )
+                     ,)
 
                    ],
 
@@ -222,6 +226,8 @@ class _ListOfVichleHistoryState extends State<ListOfVichleHistory> {
                      modelVehicleOrders.products[i].price,
                      modelVehicleOrders.products[i].date,
                      modelVehicleOrders.products[i].time,
+                     modelVehicleOrders.products[i].from,
+                     modelVehicleOrders.products[i].to,
                      )
                      ,
                      modelVehicleOrders.products.length<1?Text("No Orders at the moment",style: TextStyle(color: Colors.red,fontSize: 22)):Text(""),
@@ -280,7 +286,7 @@ class _ListOfVichleHistoryState extends State<ListOfVichleHistory> {
   }
 
   // void sendnotification(String cusid, String msg) async{
-  //   String url='https://admin.bigmidas.com:7420/store/sendnotificationtocustomer';
+  //   String url='https://admin.bigmidas.com/store/sendnotificationtocustomer';
   //   var request = http.Request('POST', Uri.parse(url));
   //   request.bodyFields = {
   //   "cust":cusid,
@@ -317,7 +323,7 @@ class _ListOfVichleHistoryState extends State<ListOfVichleHistory> {
   }
 
 
-void showAlert(BuildContext context,val,id,cname,cid,cphone,orderid,status,bookingfrom,bookingto,distance,vehicleserviceid,price,date,time){
+void showAlert(BuildContext context,val,id,cname,cid,cphone,orderid,status,bookingfrom,bookingto,distance,vehicleserviceid,price,date,time,from,to){
 
   Widget okButton = status=="0"||status=="3"?Container():RaisedButton(child: status=="2"?Text("Completed"):Text("Accept"), onPressed:((){
                           var token="3";
@@ -331,9 +337,6 @@ void showAlert(BuildContext context,val,id,cname,cid,cphone,orderid,status,booki
                           });
                           Navigator.of(context).pop();
                           }) );
-  Widget navigatebutton = RaisedButton(onPressed: ((){
-                          status=="2"?Navigate(bookingfrom):Navigate(bookingto);
-                }),child: Text("Location") );
   Widget rejectButton =  status=="0"||status=="3"?Container():RaisedButton(onPressed: ((){
                           var token="0";
                           updatestatus(id.toString(),token,cid,"Your request $orderid has been rejected by the vendor");
@@ -343,7 +346,12 @@ void showAlert(BuildContext context,val,id,cname,cid,cphone,orderid,status,booki
                           });
                           Navigator.of(context).pop();
                 }),child: Text("Reject") );
-  Widget box = SizedBox(width: 5,);
+  Widget box = SizedBox(width: 2,);
+  Widget callnow = RaisedButton(onPressed: (() async {
+                          if(await canLaunch("tel:"+cphone)){
+                            await launch("tel:"+cphone);
+                          }
+                }),child: Text("Call Now") );
 
   AlertDialog alert = AlertDialog(
     title: Center(child: Text("Orderid:  $orderid"),),
@@ -361,28 +369,40 @@ void showAlert(BuildContext context,val,id,cname,cid,cphone,orderid,status,booki
         child:    Text("OrderStatus:  ${status=="1"?'Pending':status=="2"?'Confirmed':'Completed'}",textAlign: TextAlign.left,),),
       SizedBox(height: 20,),
       Align(alignment: Alignment.centerLeft,
-        child:    Text("From:  $bookingfrom",textAlign: TextAlign.left,),),
+        child:    Text("From:  $from",textAlign: TextAlign.left,),),
       SizedBox(height: 20,),
       Align(alignment: Alignment.centerLeft,
-        child:    Text("To:  $bookingto",textAlign: TextAlign.left,),),
+        child:    Text("To:  $to",textAlign: TextAlign.left,),),
       SizedBox(height: 20,),
       Align(alignment: Alignment.centerLeft,
-        child:    Text("Distance:  $distance",textAlign: TextAlign.left,),),
+        child:    Text("Distance:  $distance km",textAlign: TextAlign.left,),),
       SizedBox(height: 20,),
       Align(alignment: Alignment.centerLeft,
         child:    Text("Date: $date",textAlign: TextAlign.left,),),
       SizedBox(height: 20,),
       Align(alignment: Alignment.centerLeft,
         child:    Text("Time: $time",textAlign: TextAlign.left,),),
+      SizedBox(height: 20,),
+      Align(alignment: Alignment.centerLeft,
+        child:  Row(children: [Text("Pickup Location :    ",textAlign: TextAlign.left,), RaisedButton(onPressed: ((){
+                          Navigate(bookingfrom);
+                }),child: Text("Pickup Location") ),
+       ],)),
+       SizedBox(height: 20,),
+      Align(alignment: Alignment.centerLeft,
+        child:  Row(children: [Text("Drop Location :    ",textAlign: TextAlign.left,), RaisedButton(onPressed: ((){
+                          Navigate(bookingto);
+                }),child: Text("Drop Location") ),
+       ],)),
 
 
     ],),),
     actions: [
       rejectButton,
       box,
-      navigatebutton,
-      box,
       okButton,
+      box,
+      callnow,
     ],
   );
 
@@ -392,15 +412,15 @@ void showAlert(BuildContext context,val,id,cname,cid,cphone,orderid,status,booki
   });
 }
 
-Widget getProductWidget(value,id,cname,cid,cphone,orderid,status,bookingfrom,bookingto,distance,vehicleserviceid,price,date,time) {
+Widget getProductWidget(value,id,cname,cid,cphone,orderid,status,bookingfrom,bookingto,distance,vehicleserviceid,price,date,time,from,to) {
   return GestureDetector(
       onTap: ((){
         // showAlert(BuildContext context,vId,orderid,amount,status,date,time,location,val,datetime){
-        showAlert(context,value,id,cname,cid,cphone,orderid,status,bookingfrom,bookingto,distance,vehicleserviceid,price,date,time);
+        showAlert(context,value,id,cname,cid,cphone,orderid,status,bookingfrom,bookingto,distance,vehicleserviceid,price,date,time,from,to);
       }),
       child:  Container(
     decoration: BoxDecoration(border: Border.all(color: Colors.grey[300])),
-    height: 200,
+    // height: 200,
     margin: EdgeInsets.all(8),
     child: Container(
       padding: EdgeInsets.all(25),
@@ -414,13 +434,6 @@ Widget getProductWidget(value,id,cname,cid,cphone,orderid,status,bookingfrom,boo
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                   )),
-              // Expanded(
-              //   child: Text("INR2,978.00",
-              //       textAlign: TextAlign.end,
-              //       style: TextStyle(
-              //         fontWeight: FontWeight.bold,
-              //       )),
-              // )
             ],
           ),
           Flex(
@@ -431,7 +444,7 @@ Widget getProductWidget(value,id,cname,cid,cphone,orderid,status,bookingfrom,boo
                     fontWeight: FontWeight.bold,
                   )),
               Expanded(
-                child: Text("$bookingfrom",
+                child: Text("$from",
                     textAlign: TextAlign.end,
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
@@ -447,7 +460,7 @@ Widget getProductWidget(value,id,cname,cid,cphone,orderid,status,bookingfrom,boo
                     fontWeight: FontWeight.bold,
                   )),
               Expanded(
-                child: Text("$bookingto",
+                child: Text("$to",
                     textAlign: TextAlign.end,
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
@@ -463,7 +476,7 @@ Widget getProductWidget(value,id,cname,cid,cphone,orderid,status,bookingfrom,boo
                     fontWeight: FontWeight.bold,
                   )),
               Expanded(
-                child: Text("$distance",
+                child: Text("$distance km",
                     textAlign: TextAlign.end,
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
@@ -488,6 +501,7 @@ Widget getProductWidget(value,id,cname,cid,cphone,orderid,status,bookingfrom,boo
           //   ],
           // ),
         status=="0" || status=="3"?Container():Row(children:[ 
+                        SizedBox(width: 50,),
                            RaisedButton(onPressed: ((){ 
                           // sendnotification(cid,"Your request $orderid has been rejected by the vendor");
                           updatestatus(id.toString(),"0",cid,"Your request $orderid has been rejected by the vendor");
@@ -495,16 +509,28 @@ Widget getProductWidget(value,id,cname,cid,cphone,orderid,status,bookingfrom,boo
                           modelVehicleOrders.products.removeAt(value);});
                            }), child: Text("Reject"), ),
                            SizedBox(width: 5,),
-                         RaisedButton(onPressed: ((){
-                          status=="2"?Navigate(bookingfrom):Navigate(bookingto);
-                            }),child: Text("Location") ),
-                           SizedBox(width: 5,),
                            RaisedButton(onPressed: ((){ 
                           // sendnotification(cid,status=="2"?"Your request $orderid has been fullfilled successfully!!":"Your order $orderid has been accepted by the Vendor");
                           updatestatus(id.toString(),status=="2"?"3":"2",cid,status=="2"?"Your request $orderid has been fullfilled successfully!!":"Your order $orderid has been accepted by the Vendor");
                           setState((){
                           modelVehicleOrders.products.removeAt(value);});
-                           }), child: status=="2"?Text("Completed"):Text("Accept"), ), ],)
+                           }), child: status=="2"?Text("Completed"):Text("Accept"), ), ],),
+              Row(children: [
+                SizedBox(width: 50,),
+                RaisedButton(onPressed: (() async {
+                          if(await canLaunch("tel:8074006214")){
+                            await launch("tel:8074006214");
+                          }
+                }),child: Text("Call Now") ),
+                SizedBox(width: 5,),
+                         RaisedButton(onPressed: ((){
+                          Navigate(bookingfrom);
+                            }),child: Text("Pickup Location") ),
+                SizedBox(width: 5,),
+                         RaisedButton(onPressed: ((){
+                          Navigate(bookingto);
+                            }),child: Text("Drop Location") ),
+              ],)
         ],
       ),
     ),

@@ -1,9 +1,9 @@
-String BASE_URL="https://admin.bigmidas.com:7420/store";
+String BASE_URL="https://admin.bigmidas.com/store";
 //String BASE_URL="http://162.241.201.237:7420/store";
 String SIGNUP=BASE_URL+"/vendor/signup";
 String LOGIN_URL=BASE_URL+"/vendor/login";
 String SHOP_CREATE=BASE_URL+"/shoplist";
-String BASE_URL_IMAGES="https://admin.bigmidas.com:7420/";
+String BASE_URL_IMAGES="https://admin.bigmidas.com/";
 String SERVICE_CATEGORIES=BASE_URL+"/service/cat/";
 String SERVICE_LIST=BASE_URL+"/servicelist";
 String VEHICLE_LIST=BASE_URL+"/vehiclelist";
@@ -15,6 +15,7 @@ String SHOP_SUBCAT=BASE_URL+"/shoplist-sub/cat1/";
 String SUBSCRIPTION=BASE_URL+"/subscription";
 String SUBSCRIPTION_SERVICE=BASE_URL+"/subscription-service";
 String SUBSCRIPTION_VEHICLE=BASE_URL+"/subscription-vehicle";
+String UPDATE_PROFILE=BASE_URL+"/updateprofilepic";
 
 String SUBSCRIPTION_PLAN_STORE=BASE_URL+"/subscriptionplan";
 String SUBSCRIPTION_PLAN_VEHICLE=BASE_URL+"/subscriptionplan-vehicle";
@@ -46,6 +47,7 @@ String VEHICLE_LISTING=BASE_URL+"/vehiclelist/";
 String VEHICLE_CAT=BASE_URL+"/vehiclelist/cat/";
 String VEHICLE_SUBCAT=BASE_URL+"/vehiclelist-sub/cat/";
 String notifications=BASE_URL+"/allmessages";
+String VENDORMESSAGES = BASE_URL+"/addmsg";
 String ADD_PRODUCT=BASE_URL+"/products";
 String EDIT_PRODUCT=BASE_URL+"/editproduct/";
 String GET_PRODUCTS_BY_VENDOR=BASE_URL+"/getproductsbyvendor/";

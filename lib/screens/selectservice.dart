@@ -1,3 +1,5 @@
+
+
 import 'package:bigmidasvendor/fcm/myfirebase.dart';
 import 'package:bigmidasvendor/screens/listing.dart';
 import 'package:bigmidasvendor/sharedpreference/loginpreferenc.dart';
@@ -5,7 +7,9 @@ import 'package:bigmidasvendor/utils/hexcolor.dart';
 import 'package:bigmidasvendor/widgets/dashboardoptions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
+import 'package:location_permissions/location_permissions.dart' as Permcheck;
+import 'package:permission_handler/permission_handler.dart';
+import 'package:location_permissions/location_permissions.dart';
 
 class SelectService extends StatefulWidget
 {
@@ -20,6 +24,26 @@ class SelectService extends StatefulWidget
 
 class SelectServiceState extends State<SelectService>
 {
+
+@override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    getlocationstatus();
+  }
+
+  void getlocationstatus() async {
+    // Future<Permcheck.PermissionStatus> Function({Permcheck.LocationPermissionLevel level}) permission = await LocationPermissions().checkPermissionStatus;
+    final locationStatus = await Permission.locationWhenInUse.serviceStatus;
+    bool location = locationStatus == Permcheck.ServiceStatus.enabled; 
+    if(location==false){
+      showAlert(context);
+    }
+    print("this is location status $location");
+
+
+  }
+
   @override
   Widget build(BuildContext context) {
     // setupFirebase(context);
@@ -64,16 +88,16 @@ class SelectServiceState extends State<SelectService>
                 //getDashboardOption("LOI", "assets/images/2.png",context),
               ],
             ),
-
+            InkWell(
+              onTap: ((){}),
+              child: 
             Container(
               margin: EdgeInsets.all(20),
-
               child: Text("If you have your shop/store then proceed with store listing",
                 style: TextStyle(
                     color: Colors.red),
               ),
-            ),
-
+            ),),
             Container(
               margin: EdgeInsets.only(top: 40),
               child: Row(
@@ -126,5 +150,25 @@ class SelectServiceState extends State<SelectService>
           ),)
     );
   }
+
+void showAlert(BuildContext context){
+  Widget okButton = RaisedButton(onPressed: (() {Navigator.of(context).pop();}), child: Text("Deny"),);
+  Widget rejectButton = RaisedButton( onPressed: (()async {Permcheck.PermissionStatus perms = await LocationPermissions().requestPermissions(); if(perms==Permcheck.PermissionStatus.granted){print("yes"); Navigator.of(context).pop();}}), child:Text("Okay"));
+  AlertDialog alert = AlertDialog(
+    title: Center(child: Text("Big Midas Vendor")),
+    content: Container(child: 
+    Text("This app collects location data to enable below features in the app, even when the app is closed or not in use.\n\nTo collect vehicle driver’s current location so customers can find all nearby drivers in customer app and can make the booking of it.\n\nTo collect your location so customers can find the nearby service provider or nearby stores in customers app and can make the booking of it."),
+    ),
+    actions: [
+      okButton,
+      rejectButton
+          ],
+  );
+
+  showDialog(context: context,
+  builder: (BuildContext context){
+    return alert;
+  });
+}
 
 }

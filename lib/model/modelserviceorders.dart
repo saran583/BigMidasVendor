@@ -37,6 +37,7 @@ class Products {
   String custid;
   String orderid;
   String price;
+  String jobaddress;
 
   Products(
       {this.sId,
@@ -51,6 +52,7 @@ class Products {
       this.time,
       this.custid,
       this.orderid,
+      this.jobaddress,
       });
 
   Products.fromJson(Map<String, dynamic> json) {
@@ -66,6 +68,7 @@ class Products {
     custid = json["customerid"];
     custphone = json["customerphone"].toString();
     orderid = json["orderid"].toString();
+    jobaddress = json["jobaddress"].toString();
   }
 
   Map<String, dynamic> toJson() {
@@ -82,6 +85,7 @@ class Products {
     data['customerid'] = this.custid;
     data['customerphone'] = this.custphone;
     data['orderid'] = this.orderid;
+    data['jobaddress'] = this.jobaddress;
 
     return data;
   }

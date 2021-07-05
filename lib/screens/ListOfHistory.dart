@@ -1,5 +1,6 @@
 
 import 'dart:async';
+import 'dart:convert';
 import 'dart:math';
 import 'package:bigmidasvendor/common.dart';
 // import 'package:bigmidasvendor/model/modalvehicleorders.dart';
@@ -85,7 +86,7 @@ class _ListOfHistoryState extends State<ListOfHistory> {
       Scaffold(
           key: _scaffoldKey,
           appBar: getAppBar(_scaffoldKey,context),
-          drawer: TestDraw(),
+          drawer: TestDraw(), 
           //body:modelShopOrders==null||modelShopOrders.products==null?Center(child: CircularProgressIndicator(),):Container(
           body:Provider.of<ProviderShop>(context,listen:true).isLoadingOrders?Center(child: CircularProgressIndicator(),):Container(
             // height: size.height,
@@ -274,12 +275,13 @@ class _ListOfHistoryState extends State<ListOfHistory> {
 //    );
 
 Widget getOrderWidget(int value,Products products){
-
+// products.productimage=products.productimage.replaceAll('"','\"');
+// print(json.decode(products.productimage).path);
+print(products.productimage);
     return SingleChildScrollView(child: GestureDetector(onTap: (){
       showAlert(context, products.sId,
       products.productname,products.quantity,products.customerid,products.customername,
-      products.customerphone,products.prodctcost,products.discountedprodprice,
-      products.status,products.ordernote, products.orederid,products.ordertime,value,products.totalprice,products.deliverycharges,products.address);
+      products.customerphone,products.status,products.ordernote, products.orederid,products.ordertime,value,products.totalprice,products.deliverycharges,products.address,products.productimage,products.discountedprodprice);
       // Navigator.pushNamed(context, Orderdescription.routeName,arguments: products );
     },  child:  Container(
         decoration: BoxDecoration(border: Border.all(color: Colors.grey[300])),
@@ -305,12 +307,14 @@ Widget getOrderWidget(int value,Products products){
   // fontWeight: FontWeight.bold,
   // )),
   // ),
-  Text("ProductName: ${products.productname}",
+  Expanded(child: 
+  Text("ProductName: ${products.productname.replaceAll("&&"," , ")}",
   style: TextStyle(
   fontWeight: FontWeight.bold,
   )),
+  ),
   Expanded(
-  child: Text("QTY ${products.quantity}",
+  child: Text("QTY ${products.quantity.replaceAll("&&"," , ")}",
   textAlign: TextAlign.end,
   style: TextStyle(
   fontWeight: FontWeight.bold,
@@ -319,20 +323,22 @@ Widget getOrderWidget(int value,Products products){
   ],
   ),
   Text(
-  "${products.customername}",
+  "${ products.customername }",
   textAlign: TextAlign.start,
   style: TextStyle(color: Colors.black),
   ),
-  Text(
-  "${products.customerphone}",
-  textAlign: TextAlign.start,
-  style: TextStyle(color: Colors.black),
-  ),
+  // Text(
+  // "${products.customerphone}",
+  // textAlign: TextAlign.start,
+  // style: TextStyle(color: Colors.black),
+  // ),
 
   //Text("2021 02 02 11:43 AM", style: TextStyle(color: Colors.grey))
     Text("Date: ${products.ordertime.split("T")[0]}", style: TextStyle(color: Colors.grey)),
     Text("Time: ${products.ordertime.split("T")[1].split(".")[0]}", style: TextStyle(color: Colors.grey)),
-              products.status=="3" || products.status=="0"?Container() : Row( children:[ RaisedButton(onPressed: ((){
+              products.status=="3" || products.status=="0"?Container() : Row( children:[ 
+                SizedBox(width: 50,),
+                RaisedButton(onPressed: ((){
                           var token="2";
                           if(products.status=="2"){
                             setState((){token="3";});
@@ -343,19 +349,29 @@ Widget getOrderWidget(int value,Products products){
                           modelShopOrders.products.removeAt(value);
                           });
                 }),child: products.status=="2"?Text("Completed"):Text("Accept"), ),
-                SizedBox(width: 5,),
-                RaisedButton(onPressed: ((){
-                          Navigate(products.address.split(":")[0]);
-                }),child: Text("Location") ),
-                SizedBox(width: 5,),
-                RaisedButton(onPressed: ((){
+                SizedBox(width: 15,),
+                products.status=="1"?RaisedButton(onPressed: ((){
                           var token="0";
                           // sendnotification(products.customerid,"Your order ${products.orederid} has been rejected by the Vendor");
                           updatestatus(products.sId.toString(),token,products.customerid,"Your order ${products.orederid} has been rejected by the Vendor");
                           setState(() {
                           modelShopOrders.products.removeAt(value);
                           });
-                }),child: Text("Reject") )  ],)
+                }),child: Text("Reject") ): Container()  ],),
+                Row(
+                  children: [
+                SizedBox(width: 50,),
+                RaisedButton(onPressed: (() async {
+                          if(await canLaunch("tel:"+products.customerphone.toString())){
+                            await launch("tel:"+products.customerphone.toString());
+                          }
+                }),child: Text("Call Now") ),
+                SizedBox(width: 15,),
+                RaisedButton(onPressed: ((){
+                          Navigate(products.address.split(":")[0]);
+                }),child: Text("Location") ),
+
+                ],)
 
   ],
   ),
@@ -363,10 +379,13 @@ Widget getOrderWidget(int value,Products products){
 
 }
 
-void showAlert(BuildContext context, pId,productname,int quantity,customerid,customername,customerphone,
-      int cost,int discountedprodprice,status,ordernote,orederid,ordertime,val,totalprice,deliverycharges,address){
+void showAlert(BuildContext context, pId,productname,String quantity,customerid,customername,customerphone,status,ordernote,orederid,ordertime,val,totalprice,deliverycharges,address,productimage,discountprice){
     // var tp= int.parse(cost) * int.parse(quantity);
     // print(totalprice);
+    var products = productname.split("&&");
+    var qty = quantity.split("&&");
+    var images = productimage.split("&&");
+    var price = discountprice.split("&&");
 
   Widget okButton = status=="3"||status=="0"?Container():RaisedButton(child: status=="2"?Text("Completed"):Text("Accept"), onPressed:((){
                           var token="2";
@@ -380,9 +399,6 @@ void showAlert(BuildContext context, pId,productname,int quantity,customerid,cus
                           });
                           Navigator.of(context).pop();
                           }) );
-  Widget navigatebutton = RaisedButton(onPressed: ((){
-                          Navigate(address.split(":")[0]);
-                }),child: Text("Location") );
   Widget rejectButton =  status=="3"||status=="0"?Container():RaisedButton(onPressed: ((){
                           var token="0";
                           updatestatus(pId.toString(),token,customerid,"Your order $orederid has been rejected by the Vendor");
@@ -392,34 +408,69 @@ void showAlert(BuildContext context, pId,productname,int quantity,customerid,cus
                           });
                           Navigator.of(context).pop();
                 }),child: Text("Reject") );
-  Widget box = SizedBox(width: 5,);
+  Widget box = SizedBox(width: 2,);
+  Widget callnow  = RaisedButton(onPressed: (() async {
+                          if(await canLaunch("tel:"+customerphone.toString())){
+                            await launch("tel:"+customerphone.toString());
+                          }
+                }),child: Text("Call Now") );
 
   AlertDialog alert = AlertDialog(
     title: Center(child: Text("OrderId: $orederid")),
     content: SingleChildScrollView(child:  Column(children: [
+      if(products.length>1)
+      for(var i=0;i<products.length;i++)
+      Row(children: [
+        Container(child: Image.network(BASE_URL_IMAGES+images[i],height: 80,width: 80,fit: BoxFit.fill,),),
+        Flexible( child: 
+        Container(padding: EdgeInsets.only(left: 10), child: Column(children: [
+          Align(alignment: Alignment.centerLeft,
+        child:    Text(products[i] ,textAlign: TextAlign.left,),),
+      SizedBox(height: 10,),
+      Row(children: [
       Align(alignment: Alignment.centerLeft,
-        child:    Text("ProductName:  $productname",textAlign: TextAlign.left,),),
-      SizedBox(height: 20,),
+        child:    Text("Qty:  ${qty[i]}", overflow: TextOverflow.ellipsis, textAlign: TextAlign.left,),),
+      SizedBox(width: 5,),
+      Align ( alignment: Alignment.centerLeft,
+        child:    Text("Price: ${price[i]}",textAlign: TextAlign.left,),),
+      ],),
+      SizedBox(height: 20,)
+        ],),),)
+      ],)
+      else 
+        Row(children: [
+        Container(child: Image.network(BASE_URL_IMAGES+productimage,height: 80,width: 80,fit: BoxFit.fill,),),
+        Flexible( child: 
+        Container(padding: EdgeInsets.only(left: 10), child: Column(children: [
+          Align(alignment: Alignment.centerLeft,
+        child:    Text(productname ,textAlign: TextAlign.left,),),
+      SizedBox(height: 10,),
+      Row(children: [
       Align(alignment: Alignment.centerLeft,
-        child:    Text("Quantity:  $quantity",textAlign: TextAlign.left,),),
+        child:    Text("Qty:  $quantity", overflow: TextOverflow.ellipsis, textAlign: TextAlign.left,),),
+      SizedBox(width: 5,),
+      Align ( alignment: Alignment.centerLeft,
+        child:    Text("Price: $discountprice",textAlign: TextAlign.left,),),
+      ],),
+      SizedBox(height: 20,)
+        ],),),)
+      ],),
+
+      // SizedBox(height: 20,),
+      // Align(alignment: Alignment.centerLeft,
+      //   child:    Text("CustomerPhone: $customerphone",textAlign: TextAlign.left,),),
       SizedBox(height: 20,),
       Align(alignment: Alignment.centerLeft,
         child:    Text("CustomerName: $customername",textAlign: TextAlign.left,),),
       SizedBox(height: 20,),
       Align(alignment: Alignment.centerLeft,
-        child:    Text("CustomerPhone: $customerphone",textAlign: TextAlign.left,),),
-      SizedBox(height: 20,),
-      Align(alignment: Alignment.centerLeft,
-        child:    Text("Price: $discountedprodprice",textAlign: TextAlign.left,),),
-      SizedBox(height: 20,),
-      Align(alignment: Alignment.centerLeft,
-        child:    Text("Total Price: ${totalprice==null?discountedprodprice * quantity:totalprice}",textAlign: TextAlign.left,),),
+        child:    Text("Total Price: $totalprice",textAlign: TextAlign.left,),),
        SizedBox(height: 20,),
       Align(alignment: Alignment.centerLeft,
-        child:    Text("Delivery Charges of order ${orederid.split("-")[0]}: ${deliverycharges==null?0:deliverycharges}",textAlign: TextAlign.left,),),
-      SizedBox(height: 20,),
-      Align(alignment: Alignment.centerLeft,
-        child:    Text("Address:  ${address.split(":")[1]}",textAlign: TextAlign.left,),),
+        child:    Text("Delivery Charges : ${deliverycharges==null?0:deliverycharges}",textAlign: TextAlign.left,),),
+      // SizedBox(height: 20,),
+      // Align(alignment: Alignment.centerLeft,
+      //   child:    Text("Address:  ${address.split(":")[1]}",textAlign: TextAlign.left,),),
       SizedBox(height: 20,),
       Align(alignment: Alignment.centerLeft,
         child:    Text("OrderStatus:  ${status=="1"?'Pending':status=="2"?'Confirmed':status=="0"?'Rejected':'Completed'}",textAlign: TextAlign.left,),),
@@ -432,14 +483,21 @@ void showAlert(BuildContext context, pId,productname,int quantity,customerid,cus
       SizedBox(height: 20,),
       Align(alignment: Alignment.centerLeft,
         child:    Text("Time: ${ordertime.split("T")[1].split(".")[0]}",textAlign: TextAlign.left,),),
+      Align(alignment: Alignment.centerLeft,
+        child:  Row(children: [Text("Location :      ",textAlign: TextAlign.left,), RaisedButton(onPressed: ((){
+                          Navigate(address.split(":")[0]);
+                }),child: Text("Location") ), ],),),
 
 
 
     ],),),
     actions: [
       rejectButton,
-      navigatebutton,
+      // navigatebutton,
+      box,
       okButton,
+      box,
+      callnow,
     ],
   );
 

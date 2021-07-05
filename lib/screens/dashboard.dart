@@ -3,6 +3,7 @@ import 'package:bigmidasvendor/model/modeluser.dart';
 import 'package:bigmidasvendor/provider/providerlogn.dart';
 import 'package:bigmidasvendor/provider/providersubscriptionplan.dart';
 import 'package:bigmidasvendor/screens/editproduct.dart';
+import 'package:bigmidasvendor/screens/subscription.dart';
 import 'package:bigmidasvendor/sharedpreference/loginpreferenc.dart';
 import 'package:bigmidasvendor/widgets/drawer.dart';
 import 'package:bigmidasvendor/widgets/testdraw.dart';
@@ -77,6 +78,9 @@ Widget getDashboardDataDependingOnCategory(BuildContext context) {
           children: [
             Text("Membership"),
             SizedBox(width: 20,),
+                                 InkWell(
+                      onTap: (){Navigator.pushNamed(context, Subscription.routeName);},
+                      child:
             Container(
 
               margin: EdgeInsets.only(right: 10),
@@ -99,6 +103,7 @@ Widget getDashboardDataDependingOnCategory(BuildContext context) {
                   "${modalMySubs.daysremaining}",
                 ),
               ),
+            ),
             )
 
           ],

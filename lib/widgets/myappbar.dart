@@ -1,7 +1,9 @@
+import 'package:bigmidasvendor/provider/providerlogn.dart';
 import 'package:bigmidasvendor/screens/notification.dart';
 import 'package:bigmidasvendor/screens/tutorial.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 Widget getAppBar(_scaffoldKey,context)
 {
@@ -25,7 +27,9 @@ backgroundColor: Colors.deepOrangeAccent,
       },
       child:  Image.asset("assets/images/question.png",height: 30,width: 30,) ,),
       SizedBox(width: 20,),
+      if(Provider.of<ProviderLogin>(context, listen: false).userType!="vehicle")
       Image.asset("assets/images/location.png",height: 30,width: 30,),
+      if(Provider.of<ProviderLogin>(context, listen: false).userType!="vehicle")
       SizedBox(width: 20,),
     GestureDetector(
       onTap: (){

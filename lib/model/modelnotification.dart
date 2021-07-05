@@ -22,26 +22,26 @@ class ModelNotification {
 }
 
 class Result {
-  String sId;
-  String type;
+  String vendorid;
+  // String type;
   String message;
-  String id;
+  // String id;
 
-  Result({this.sId, this.type, this.message, this.id});
+  Result({this.vendorid, /*this.type,*/ this.message, /*this.id*/});
 
   Result.fromJson(Map<String, dynamic> json) {
-    sId = json['_id'];
-    type = json['type'];
+    vendorid = json['vendorid'];
+    // type = json['type'];
     message = json['message'];
-    id = json['id'];
+    // id = json['id'];
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['_id'] = this.sId;
-    data['type'] = this.type;
+    data['vendorid'] = this.vendorid;
+    // data['type'] = this.type;
     data['message'] = this.message;
-    data['id'] = this.id;
+    // data['id'] = this.id;
     return data;
   }
 }

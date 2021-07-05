@@ -152,7 +152,8 @@ class _AllVehicleOrdersState extends State<AllVehicleOrders> {
                      modelVehicleOrders.products[i].price,
                      modelVehicleOrders.products[i].date,
                      modelVehicleOrders.products[i].time,
-
+                     modelVehicleOrders.products[i].from,
+                     modelVehicleOrders.products[i].to,
                      )
              ],),
      ]
@@ -246,7 +247,7 @@ class _AllVehicleOrdersState extends State<AllVehicleOrders> {
   }
 
 
-void showAlert(BuildContext context,val,id,cname,cid,cphone,orderid,status,bookingto,bookingfrom,distance,vehicleserviceid,price,date,time){
+void showAlert(BuildContext context,val,id,cname,cid,cphone,orderid,status,bookingto,bookingfrom,distance,vehicleserviceid,price,date,time,from,to){
 
   Widget okButton = status=="0"||status=="3"?Container():RaisedButton(child: status=="2"?Text("Completed"):Text("Accept"), onPressed:((){
                           var token="3";
@@ -260,9 +261,6 @@ void showAlert(BuildContext context,val,id,cname,cid,cphone,orderid,status,booki
                           });
                           Navigator.of(context).pop();
                           }) );
-  Widget navigatebutton = RaisedButton(onPressed: ((){
-                          status=="2"?Navigate(bookingto):Navigate(bookingfrom);
-                }),child: Text("Location") );
   Widget rejectButton =  status=="0"||status=="3"?Container():RaisedButton(onPressed: ((){
                           var token="0";
                           updatestatus(id.toString(),token,cid,"Your request $orderid has been rejected by the vendor");
@@ -272,7 +270,12 @@ void showAlert(BuildContext context,val,id,cname,cid,cphone,orderid,status,booki
                           });
                           Navigator.of(context).pop();
                 }),child: Text("Reject") );
-  Widget box = SizedBox(width: 5,);
+  Widget box = SizedBox(width: 2,);
+  Widget callnow = RaisedButton(onPressed: (() async {
+                          if(await canLaunch("tel:"+cphone)){
+                            await launch("tel:"+cphone);
+                          }
+                }),child: Text("Call Now") );
 
   AlertDialog alert = AlertDialog(
     title: Center(child: Text("Orderid:  $orderid"),),
@@ -290,28 +293,32 @@ void showAlert(BuildContext context,val,id,cname,cid,cphone,orderid,status,booki
         child:    Text("OrderStatus:  ${status=="1"?'Pending':status=="2"?'Confirmed':'Completed'}",textAlign: TextAlign.left,),),
       SizedBox(height: 20,),
       Align(alignment: Alignment.centerLeft,
-        child:    Text("From:  $bookingfrom",textAlign: TextAlign.left,),),
+        child:    Text("From:  $from",textAlign: TextAlign.left,),),
       SizedBox(height: 20,),
       Align(alignment: Alignment.centerLeft,
-        child:    Text("To:  $bookingto",textAlign: TextAlign.left,),),
+        child:    Text("To:  $to",textAlign: TextAlign.left,),),
       SizedBox(height: 20,),
       Align(alignment: Alignment.centerLeft,
-        child:    Text("Distance:  $distance",textAlign: TextAlign.left,),),
+        child:    Text("Total Distance:  $distance km",textAlign: TextAlign.left,),),
       SizedBox(height: 20,),
       Align(alignment: Alignment.centerLeft,
         child:    Text("Date: $date",textAlign: TextAlign.left,),),
       SizedBox(height: 20,),
       Align(alignment: Alignment.centerLeft,
         child:    Text("Time: $time",textAlign: TextAlign.left,),),
+      Align(alignment: Alignment.centerLeft,
+        child:  Row(children: [Text("Location :     ",textAlign: TextAlign.left,), RaisedButton(onPressed: ((){
+                          status=="2"?Navigate(bookingto):Navigate(bookingfrom);
+                }),child: Text("Location") ) ],)),
 
 
     ],),),
     actions: [
       rejectButton,
       box,
-      navigatebutton,
+      okButton,      
       box,
-      okButton,
+      callnow,
     ],
   );
 
@@ -321,15 +328,15 @@ void showAlert(BuildContext context,val,id,cname,cid,cphone,orderid,status,booki
   });
 }
 
-Widget getProductWidget(value,id,cname,cid,cphone,orderid,status,bookingto,bookingfrom,distance,vehicleserviceid,price,date,time) {
+Widget getProductWidget(value,id,cname,cid,cphone,orderid,status,bookingto,bookingfrom,distance,vehicleserviceid,price,date,time,from,to) {
   return GestureDetector(
       onTap: ((){
         // showAlert(BuildContext context,vId,orderid,amount,status,date,time,location,val,datetime){
-        showAlert(context,value,id,cname,cid,cphone,orderid,status,bookingto,bookingfrom,distance,vehicleserviceid,price,date,time);
+        showAlert(context,value,id,cname,cid,cphone,orderid,status,bookingto,bookingfrom,distance,vehicleserviceid,price,date,time,from,to);
       }),
       child:  Container(
     decoration: BoxDecoration(border: Border.all(color: Colors.grey[300])),
-    height: 200,
+    // height: 200,
     margin: EdgeInsets.all(8),
     child: Container(
       padding: EdgeInsets.all(25),
@@ -360,7 +367,7 @@ Widget getProductWidget(value,id,cname,cid,cphone,orderid,status,bookingto,booki
                     fontWeight: FontWeight.bold,
                   )),
               Expanded(
-                child: Text("$bookingfrom",
+                child: Text("$from",
                     textAlign: TextAlign.end,
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
@@ -376,7 +383,7 @@ Widget getProductWidget(value,id,cname,cid,cphone,orderid,status,bookingto,booki
                     fontWeight: FontWeight.bold,
                   )),
               Expanded(
-                child: Text("$bookingto",
+                child: Text("$to",
                     textAlign: TextAlign.end,
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
@@ -387,12 +394,12 @@ Widget getProductWidget(value,id,cname,cid,cphone,orderid,status,bookingto,booki
           Flex(
             direction: Axis.horizontal,
             children: [
-              Text("Distance",
+              Text("Total Distance",
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                   )),
               Expanded(
-                child: Text("$distance",
+                child: Text("$distance km",
                     textAlign: TextAlign.end,
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
@@ -417,23 +424,33 @@ Widget getProductWidget(value,id,cname,cid,cphone,orderid,status,bookingto,booki
           //   ],
           // ),
         status=="0" || status=="3"?Container():Row(children:[ 
-                           RaisedButton(onPressed: ((){ 
+            SizedBox(width:50),
+                          RaisedButton(onPressed: ((){ 
                           // sendnotification(cid,"Your request $orderid has been rejected by the vendor");
                           updatestatus(id.toString(),"0",cid,"Your request $orderid has been rejected by the vendor");
                         setState((){
                           modelVehicleOrders.products.removeAt(value);});
                            }), child: Text("Reject"), ),
                            SizedBox(width: 5,),
-                RaisedButton(onPressed: ((){
-                          status=="2"?Navigate(bookingto):Navigate(bookingfrom);
-                }),child: Text("Location") ),
-                           SizedBox(width: 5,),
                            RaisedButton(onPressed: ((){ 
                           // sendnotification(cid,status=="2"?"Your request $orderid has been fullfilled successfully!!":"Your order $orderid has been accepted by the Vendor");
                           updatestatus(id.toString(),status=="2"?"3":"2",cid,status=="2"?"Your request $orderid has been fullfilled successfully!!":"Your order $orderid has been accepted by the Vendor");
                           setState((){
                           modelVehicleOrders.products.removeAt(value);});
-                           }), child: status=="2"?Text("Completed"):Text("Accept"), ), ],)
+                           }), child: status=="2"?Text("Completed"):Text("Accept"), ), ],),
+
+                      Row(children: [
+                        SizedBox(width: 50,),
+                        RaisedButton(onPressed: (() async {
+                          if(await canLaunch("tel:"+cphone)){
+                            await launch("tel:"+cphone);
+                          }           
+                }),child: Text("Call Now") ),
+                 SizedBox(width: 5,),
+                RaisedButton(onPressed: ((){
+                          status=="2"?Navigate(bookingto):Navigate(bookingfrom);
+                }),child: Text("Location") ),
+                      ],)
         ],
       ),
     ),

@@ -46,6 +46,7 @@ class Listing extends StatefulWidget
 class ListingState extends State<Listing> {
   bool isLoading = false;
   var dropdownValue;
+  String state = "";
 
   ModelVehicleProfile vehicles;
   var fc=0;
@@ -72,6 +73,7 @@ class ListingState extends State<Listing> {
   TextEditingController controllerLatLong = TextEditingController(text: "");
   TextEditingController controllercity = TextEditingController(text: "");
   TextEditingController controllerarea = TextEditingController(text: "");
+  TextEditingController controllervehiclenumber = TextEditingController(text: "");
   TextEditingController controlleraddress = TextEditingController(text: "");
   TextEditingController controllercategory = TextEditingController(text: "");
   TextEditingController controllerpanadhaar = TextEditingController(text: "");
@@ -347,6 +349,35 @@ class ListingState extends State<Listing> {
                             controller: controllerLatLong,
                             isFieldEnabled: isVehicle)
                     ),
+                    SizedBox(height: 25,),
+                    // if(screen==1)
+                    Container(
+                        padding: EdgeInsets.only(top: 10,left: 20,right: 20),
+                        child:DropdownButtonFormField(
+                          validator: (value){
+                            print("Store validator $value");
+                            if(value==null||value.toString().trim().isEmpty)return "Please Select Category";
+                            return null;
+                          },
+                          isExpanded: true,
+                          hint: Text("Select State"),
+                          items:["Andhra Pradesh","Arunachal Pradesh","Assam","Bihar","Chhattisgarh","Goa","Gujarat","Haryana","Himachal Pradesh","Jharkhand","Karnataka","Kerala","Madhya Pradesh","Maharashtra","Manipur","Meghalaya","Mizoram","Nagaland","Odisha","Punjab","Rajasthan","Sikkim","Tamil Nadu","Telangana","Tripura","Uttar Pradesh","Uttarakhand","West Bengal"].map((value) {
+                            return DropdownMenuItem(
+                              value: value,
+                              child: new Text(value),
+                            );
+                          }).toList(),
+                          onChanged: (val) {
+                            print("this is the new selected value in dropdown $val");
+                            //catIdSelectedForServiceListing=val.sId;
+                            setState(() {
+                              state=val;
+                            });
+
+                            // getShopSubCategory();
+                          },
+                        ) ,
+                      ),
 
                     getTItleWidget("City"),
                     getTextWidget(
@@ -354,14 +385,17 @@ class ListingState extends State<Listing> {
 
                     getTItleWidget("Area"),
                     getTextWidget(
-                        "Enter Area", "", size, controller: controllerarea),
+                        "Enter District", "", size, controller: controllerarea),
 
                     getTItleWidget("Address"),
                     getTextWidget("Enter Address", "", size,
                         controller: controlleraddress),
                     if(screen==2||screen==3)
-                      getTextWidget("Enter Price", "", size,
+                      getTextWidget(screen==2?"Enter per km Price":"Enter your base Price", "", size,
                           controller: controllerPrice),
+                    if(screen==2)
+                    getTextWidget(
+                        "Enter Vehicle Number", "", size, controller: controllervehiclenumber),
 
 
                     getTItleWidget("Category"),
@@ -752,6 +786,8 @@ class ListingState extends State<Listing> {
           //prefixIcon: Icon(Icons.email),
           // icon: Icon(Icons.perm_identity)
         ),
+        
+        keyboardType: hint.contains("Price")?TextInputType.number:TextInputType.text,
         style: TextStyle(color: Colors.black,),
 
 
@@ -833,6 +869,7 @@ if(Photos.length>0){
     ..fields['shop_name'] = controllerName.text
     ..fields['location_map'] = controllerLatLong.text
     ..fields['area'] = controllerarea.text
+    ..fields['state'] = state
     ..fields['city'] = controllercity.text
     ..fields['address'] = controlleraddress.text
    // ..fields['category'] = controllercategory.text
@@ -943,11 +980,12 @@ if(Photos.length>0){
         var request = http.MultipartRequest('POST', Uri.parse(url))
 
           ..fields['vechicle_catgory'] = vehicleCat
+          ..fields['state'] = state
           ..fields['vechicle_type'] = vehicleSubCat
           ..fields['area'] = controllerarea.text
           ..fields['city'] = controllercity.text
           ..fields['address'] = controlleraddress.text
-         // ..fields['category'] = controllercategory.text
+         ..fields['vehiclenumber'] = controllervehiclenumber.text
           ..fields['category'] = vehicleCat
           ..fields['vendorid'] = '$vendorId'
           ..fields['vehicle_price'] = controllerPrice.text
@@ -1113,6 +1151,7 @@ if(Photos.length>0){
     var request = http.MultipartRequest('POST', Uri.parse(url))
       ..fields['service_category'] = '$catIdSelectedForServiceListing'
       ..fields['location_map'] = controllerLatLong.text
+      ..fields['state'] = state
       ..fields['area'] = controllerarea.text
       ..fields['city'] = controllercity.text
       ..fields['address'] = controlleraddress.text

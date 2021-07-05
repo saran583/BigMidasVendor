@@ -1,5 +1,6 @@
 import 'package:bigmidasvendor/provider/providerlogn.dart';
 import 'package:bigmidasvendor/screens/ListOfHistory.dart';
+import 'package:bigmidasvendor/screens/ListOfServiceHistory.dart';
 import 'package:bigmidasvendor/screens/ListOfVichleHistory.dart';
 import 'package:bigmidasvendor/screens/Privacy.dart';
 import 'package:bigmidasvendor/screens/TC.dart';
@@ -7,6 +8,7 @@ import 'package:bigmidasvendor/screens/aboutus.dart';
 import 'package:bigmidasvendor/screens/addproduct.dart';
 import 'package:bigmidasvendor/screens/allserviceorders.dart';
 import 'package:bigmidasvendor/screens/allvehicleorders.dart';
+import 'package:bigmidasvendor/screens/dashboard.dart';
 import 'package:bigmidasvendor/screens/editproduct.dart';
 import 'package:bigmidasvendor/screens/listing.dart';
 import 'package:bigmidasvendor/screens/profile.dart';
@@ -49,8 +51,18 @@ title: Text("$itemName",
 //    ),
     onTap: () async {
       print("Enterd===================");
-
-      if(itemName=="Logout")
+      if(itemName=="Home"){
+           if(Provider.of<ProviderLogin>(context,listen: false).userType=="vehicle"){
+             Navigator.pushNamed(context, ListOfVichleHistory.routeName);
+           }
+           else if (Provider.of<ProviderLogin>(context,listen: false).userType=="store"){
+              Navigator.pushNamed(context, DashBoard.routeName);
+           }
+           else if(Provider.of<ProviderLogin>(context,listen: false).userType=="service"){
+               Navigator.pushNamed(context, ListOfServiceHistory.routeName);
+           }
+      } 
+      else if(itemName=="Logout")
         {
           LoginPreference pref=LoginPreference();
           pref.deleteUserPreference();
@@ -98,7 +110,7 @@ Navigator.pushNamed(context, ReviewListView.routeName);
         Navigator.pushNamed(context, AboutUs.routeName,arguments: 1);
       }
       else if(itemName=="Privacy Policy"){
-        Navigator.pushNamed(context, AboutUs.routeName,arguments: 2);
+        Navigator.pushNamed(context, Privacy.routeName,arguments: 2);
       }
       else if(itemName=="About Us"){
         Navigator.pushNamed(context, AboutUs.routeName,arguments: 0);

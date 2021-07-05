@@ -7,8 +7,10 @@ import 'package:bigmidasvendor/screens/selectservice.dart';
 import 'package:bigmidasvendor/sharedpreference/loginpreferenc.dart';
 import 'package:bigmidasvendor/widgets/appspecificsignaturewidgets.dart';
 import 'package:flutter/material.dart';
+import 'package:location_permissions/location_permissions.dart';
 import 'package:provider/provider.dart';
-
+import 'package:permission_handler/permission_handler.dart';
+import 'package:location_permissions/location_permissions.dart' as Permcheck;
 import 'login.dart';
 
 class LoginOrRegisterOption extends StatefulWidget {
@@ -24,9 +26,23 @@ class LoginOrRegisterOptionState extends State<LoginOrRegisterOption>{
     // TODO: implement initState
     super.initState();
     checkForUserData();
-
-
+    getlocationstatus();
   }
+
+  void getlocationstatus() async {
+    // Future<Permcheck.PermissionStatus> Function({Permcheck.LocationPermissionLevel level}) permission = await LocationPermissions().checkPermissionStatus;
+    final locationStatus = await Permission.locationWhenInUse.serviceStatus;
+    bool location = locationStatus == Permcheck.ServiceStatus.enabled; 
+    if(location==false){
+      showAlert(context);
+    }
+    print("this is location status $location");
+  }
+
+
+
+
+
   void checkForUserData()async
   {
     ModelUser modelUser=await Provider.of<ProviderLogin>(context,listen: false).loadUserPrefIfAny();
@@ -102,5 +118,27 @@ class LoginOrRegisterOptionState extends State<LoginOrRegisterOption>{
       ),
     );
   }
+
+
+  
+void showAlert(BuildContext context){
+  Widget okButton = RaisedButton(onPressed: (() {Navigator.of(context).pop();}), child: Text("Deny"),);
+  Widget rejectButton = RaisedButton( onPressed: (()async {Permcheck.PermissionStatus perms = await LocationPermissions().requestPermissions(); if(perms==Permcheck.PermissionStatus.granted){print("yes"); Navigator.of(context).pop();}}), child:Text("Okay"));
+  AlertDialog alert = AlertDialog(
+    title: Center(child: Text("Big Midas Vendor")),
+    content: Container(child: 
+    Text("This app collects location data to enable below features in the app, even when the app is closed or not in use.\n\nTo collect vehicle driver’s current location so customers can find all nearby drivers in customer app and can make the booking of it.\n\nTo collect your location so customers can find the nearby service provider or nearby stores in customers app and can make the booking of it."),
+    ),
+    actions: [
+      okButton,
+      rejectButton
+          ],
+  );
+
+  showDialog(context: context,
+  builder: (BuildContext context){
+    return alert;
+  });
+}
 
 }

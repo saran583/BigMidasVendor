@@ -11,11 +11,11 @@
     <!-- <uses-feature android:name="android.hardware.location.gps" android:required="false"  /> -->
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <!-- <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/> -->
     <application
         android:name=".Application"
         android:label="Big_Midas_Vendor"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/vendor_logo">
         <meta-data android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyBJ7XP4D6qnzuxDXNomz4JYtNsaMW89M7k"/>
         <activity

@@ -152,7 +152,8 @@ class _AllServiceOrdersState extends State<AllServiceOrders> {
                     modelServiceOrders.products[i].title,
                     modelServiceOrders.products[i].description,
                     modelServiceOrders.products[i].custname,
-                    modelServiceOrders.products[i].custphone),
+                    modelServiceOrders.products[i].custphone,
+                    modelServiceOrders.products[i].jobaddress),
             ],),
             ]
             ),
@@ -201,7 +202,7 @@ class _AllServiceOrdersState extends State<AllServiceOrders> {
 
 
     void sendnotification(String cusid, String msg) async{
-    String url='https://admin.bigmidas.com:7420/store/sendnotificationtocustomer';
+    String url='https://admin.bigmidas.com/store/sendnotificationtocustomer';
     var request = http.Request('POST', Uri.parse(url));
     request.bodyFields = {
     "cust":cusid,
@@ -236,15 +237,15 @@ class _AllServiceOrdersState extends State<AllServiceOrders> {
     }
   }
 
- Widget getProductWidget(value,id,custid,orderid,status,bookingdate,bookingtime,location,amount,title,description,custname,custphone) {
+ Widget getProductWidget(value,id,custid,orderid,status,bookingdate,bookingtime,location,amount,title,description,custname,custphone,jobaddress) {
    print(status);
     return GestureDetector(
       onTap: ((){
-        showAlert(context,id,custid,orderid,amount,status,bookingdate,bookingtime,location,value,title,description,custname,custphone);
+        showAlert(context,id,custid,orderid,amount,status,bookingdate,bookingtime,location,value,title,description,custname,custphone,jobaddress);
       }),
       child:  Container(
       decoration: BoxDecoration(border: Border.all(color: Colors.grey[300])),
-      height: 200,
+      // height: 200,
       margin: EdgeInsets.all(8),
       child: Container(
         padding: EdgeInsets.all(25),
@@ -307,7 +308,7 @@ class _AllServiceOrdersState extends State<AllServiceOrders> {
                       fontWeight: FontWeight.bold,
                     )),
                 Expanded(
-                  child: Text("$location",
+                  child: Text("$jobaddress",
                       textAlign: TextAlign.end,
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
@@ -323,7 +324,7 @@ class _AllServiceOrdersState extends State<AllServiceOrders> {
                       fontWeight: FontWeight.bold,
                     )),
                 Expanded(
-                  child: Text("$amount",
+                  child: Text("${amount==null?'Work Basis':amount}",
                       textAlign: TextAlign.end,
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
@@ -332,24 +333,33 @@ class _AllServiceOrdersState extends State<AllServiceOrders> {
               ],
             ),
             status=="3" || status=="0"?Container() :Row(children:[
-                           RaisedButton(onPressed: ((){ 
+                        SizedBox(width: 50,),
+                          RaisedButton(onPressed: ((){ 
                           updatestatus(custid.toString(),"0",custid,"Your order $orderid has been rejected by the vendor");
                           // sendnotification(custid,"Your order $orderid has been rejected by the vendor");
                           setState(() {
                           modelServiceOrders.products.removeAt(value);});
                            }), child: Text("Reject") ),
-                           SizedBox(width: 5,),
-                RaisedButton(onPressed: ((){
-                          Navigate("43.7967876,-79.5331616",location);
-                }),child: Text("Location") ),
-                           SizedBox(width: 5,),
+                           SizedBox(width: 5,),                           
                            RaisedButton ( onPressed: ((){ 
                             // sendnotification(custid,status=="2"?"Your request $orderid has been fullfilled successfully!!":"Your request $orderid has been accepted by the Service Provider");
                           updatestatus(id.toString(),status=="2"?"3":"2",custid,status=="2"?"Your request $orderid has been fullfilled successfully!!":"Your request $orderid has been accepted by the Service Provider");
                           setState(() {
                           modelServiceOrders.products.removeAt(value);});
                            }), child: status=="2"?Text("Completed"):Text("Accept"), ),
-                            ],)
+                            ],),
+              Row(children: [
+                SizedBox(width: 50,),
+                RaisedButton(onPressed: (() async {
+                          if(await canLaunch("tel:"+custphone)){
+                            await launch("tel:"+custphone);
+                          }
+                }),child: Text("Call Now") ),
+                SizedBox(width: 5,),
+                RaisedButton(onPressed: ((){
+                          Navigate("43.7967876,-79.5331616",location);
+                }),child: Text("Location") ),
+              ],)
           ],
         ),
       ),
@@ -357,7 +367,7 @@ class _AllServiceOrdersState extends State<AllServiceOrders> {
     );
   }
 
-  void showAlert(BuildContext context,id,custid,orderid,amount,status,date,time,location,val,title,description,custname,custphone){
+  void showAlert(BuildContext context,id,custid,orderid,amount,status,date,time,location,val,title,description,custname,custphone,jobaddress){
 
   Widget okButton = status == "0" || status == "3"?Container(): RaisedButton(child: status=="2"?Text("Completed"):Text("Accept"), onPressed:((){
                           var token="3";
@@ -371,10 +381,8 @@ class _AllServiceOrdersState extends State<AllServiceOrders> {
                           });
                           Navigator.of(context).pop();
                           }) );
-  Widget navigatebutton = RaisedButton(onPressed: ((){
-                          Navigate("43.7967876,-79.5331616",location);
-                }),child: Text("Location") );
-  Widget rejectButton =  status == "0" || status == "3"?Container(): RaisedButton(onPressed: ((){
+  Widget rejectButton =  status == "0" || status == "3"?Container():
+                    RaisedButton(onPressed: ((){
                           var token="0";
                           // sendnotification(custid,"Your order $orderid has been rejected by the vendor");
                           updatestatus(id.toString(),token,custid,"Your order $orderid has been rejected by the vendor");
@@ -383,7 +391,12 @@ class _AllServiceOrdersState extends State<AllServiceOrders> {
                           });
                           Navigator.of(context).pop();
                 }),child: Text("Reject") );
-  Widget box = SizedBox(width: 5,);
+  Widget box = SizedBox(width: 2,);
+  Widget callnow = RaisedButton(onPressed: (() async {
+                          if(await canLaunch("tel:"+custphone)){
+                            await launch("tel:"+custphone);
+                          }
+                }),child: Text("Call Now") );
 
   AlertDialog alert = AlertDialog(
     title: Center(child: Text("Orderid:  $orderid")),
@@ -401,27 +414,31 @@ class _AllServiceOrdersState extends State<AllServiceOrders> {
         child:    Text("Customer Phone: $custphone",textAlign: TextAlign.left,),),
       SizedBox(height: 20,),
       Align(alignment: Alignment.centerLeft,
-        child:    Text("Price: $amount",textAlign: TextAlign.left,),),
+        child:    Text("Price: ${amount==null?'Work Basis':amount}",textAlign: TextAlign.left,),),
       SizedBox(height: 20,),
       Align(alignment: Alignment.centerLeft,
         child:    Text("Order Status:  ${status=="1"?'Pending':status=="2"?'Confirmed':'Completed'}",textAlign: TextAlign.left,),),
       SizedBox(height: 20,),
       Align(alignment: Alignment.centerLeft,
-        child:    Text("Location:  $location",textAlign: TextAlign.left,),),
+        child:    Text("Location:  $jobaddress",textAlign: TextAlign.left,),),
       SizedBox(height: 20,),
       Align(alignment: Alignment.centerLeft,
         child:    Text("Date: $date",textAlign: TextAlign.left,),),
       SizedBox(height: 20,),
       Align(alignment: Alignment.centerLeft,
         child:    Text("Time: $time",textAlign: TextAlign.left,),),
+      Align(alignment: Alignment.centerLeft,
+        child:  Row(children: [Text("Location: ",textAlign: TextAlign.left,),RaisedButton(onPressed: ((){
+                          Navigate("43.7967876,-79.5331616",location);
+                }),child: Text("Location") ) ],)),
 
     ],),),
     actions: [
       rejectButton,
       box,
-      navigatebutton,
-      box,
       okButton,
+      box,
+      callnow,
     ],
   );
 

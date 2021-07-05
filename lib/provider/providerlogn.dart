@@ -16,6 +16,7 @@ class ProviderLogin with ChangeNotifier
 String userId="";
 String userType="";
 List<String> drawerOptionStore=[
+  "Home",
   "Profile Setting",
   "Add Product",
   "Edit Products",
@@ -31,6 +32,7 @@ List<String> drawerOptionStore=[
 ];
 
 List<String> drawerOptionVehicle=[
+  "Home",
   "Profile Setting",
   "Vehicle Details",
   "Completed Jobs",
@@ -45,6 +47,7 @@ List<String> drawerOptionVehicle=[
 
 ];
 List<String> drawerOptionService=[
+  "Home",
   "Profile Setting",
   "Completed Booking",
   "Rating/Reviews",
