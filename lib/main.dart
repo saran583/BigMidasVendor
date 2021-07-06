@@ -187,9 +187,19 @@ void showAlert(BuildContext context){
   Widget rejectButton = RaisedButton( onPressed: (()async {Permcheck.PermissionStatus perms = await LocationPermissions().requestPermissions(); if(perms==Permcheck.PermissionStatus.granted){print("yes"); Navigator.of(context).pop();}}), child:Text("Okay"));
   AlertDialog alert = AlertDialog(
     title: Center(child: Text("Big Midas Vendor")),
-    content: Container(child: 
-    Text("This app collects location data to enable below features in the app, even when the app is closed or not in use.\n\nTo collect vehicle driver’s current location so customers can find all nearby drivers in customer app and can make the booking of it.\n\nTo collect your location so customers can find the nearby service provider or nearby stores in customers app and can make the booking of it."),
+    content: Column(children:[
+    Expanded(child:  
+    Text("This app collects location data to enable below features in the app, even when the app is closed or not in use.",style: TextStyle(fontWeight: FontWeight.bold),),
     ),
+    SizedBox(height: 10,),
+    Expanded(child: 
+    Text("To collect vehicle driver’s current location so customers can find all nearby drivers in customer app and can make the booking of it."),
+    ),
+    SizedBox(height: 10,),
+    Expanded(child:
+    Text("To collect your location so customers can find the nearby service provider or nearby stores in customers app and can make the booking of it."),
+    ),
+    ]),
     actions: [
       okButton,
       rejectButton

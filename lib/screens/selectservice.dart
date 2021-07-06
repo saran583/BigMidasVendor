@@ -29,7 +29,7 @@ class SelectServiceState extends State<SelectService>
   void initState() {
     // TODO: implement initState
     super.initState();
-    getlocationstatus();
+    // getlocationstatus();
   }
 
   void getlocationstatus() async {

@@ -26,7 +26,7 @@ class LoginOrRegisterOptionState extends State<LoginOrRegisterOption>{
     // TODO: implement initState
     super.initState();
     checkForUserData();
-    getlocationstatus();
+    // getlocationstatus();
   }
 
   void getlocationstatus() async {
