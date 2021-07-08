@@ -7,11 +7,10 @@ import 'package:bigmidasvendor/screens/selectservice.dart';
 import 'package:bigmidasvendor/sharedpreference/loginpreferenc.dart';
 import 'package:bigmidasvendor/widgets/appspecificsignaturewidgets.dart';
 import 'package:flutter/material.dart';
-import 'package:location_permissions/location_permissions.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import 'package:permission_handler/permission_handler.dart';
-import 'package:location_permissions/location_permissions.dart' as Permcheck;
 import 'login.dart';
+import 'package:location/location.dart';
 
 class LoginOrRegisterOption extends StatefulWidget {
   @override
@@ -26,17 +25,26 @@ class LoginOrRegisterOptionState extends State<LoginOrRegisterOption>{
     // TODO: implement initState
     super.initState();
     checkForUserData();
-    // getlocationstatus();
+    getlocationstatus();
   }
 
   void getlocationstatus() async {
     // Future<Permcheck.PermissionStatus> Function({Permcheck.LocationPermissionLevel level}) permission = await LocationPermissions().checkPermissionStatus;
-    final locationStatus = await Permission.locationWhenInUse.serviceStatus;
-    bool location = locationStatus == Permcheck.ServiceStatus.enabled; 
-    if(location==false){
+    var location = new Location();
+    final PermissionStatus perm= await location.hasPermission();
+    if(perm != PermissionStatus.GRANTED){
       showAlert(context);
     }
-    print("this is location status $location");
+    print("this is the status whether location is enabled or not $perm");
+    var service = await location.serviceEnabled();
+    print("This is the update of the service $service");
+
+    // final locationStatus = await Permission.locationWhenInUse.serviceStatus;
+    // bool location = locationStatus == Permcheck.ServiceStatus.enabled; 
+    // if(location==false){
+    //   showAlert(context);
+    // }
+    // print("this is location status $location");
   }
 
 
@@ -119,18 +127,40 @@ class LoginOrRegisterOptionState extends State<LoginOrRegisterOption>{
     );
   }
 
-
-  
 void showAlert(BuildContext context){
-  Widget okButton = RaisedButton(onPressed: (() {Navigator.of(context).pop();}), child: Text("Deny"),);
-  Widget rejectButton = RaisedButton( onPressed: (()async {Permcheck.PermissionStatus perms = await LocationPermissions().requestPermissions(); if(perms==Permcheck.PermissionStatus.granted){print("yes"); Navigator.of(context).pop();}}), child:Text("Okay"));
+  var location = new Location();
+  Widget okButton = RaisedButton(onPressed: (() {SystemNavigator.pop();}), child: Text("Deny"),);
+  Widget space = SizedBox(width: 100);
+  Widget rejectButton = RaisedButton( onPressed: (()async {
+     print("Entered log"); 
+     location.requestPermission();  
+     final PermissionStatus perm= await location.hasPermission();
+    if(perm == PermissionStatus.GRANTED){
+      Navigator.of(context).pop();
+      }
+    // else{
+    //   SystemNavigator.pop();
+    // }
+      }), child:Text("Okay"));
   AlertDialog alert = AlertDialog(
     title: Center(child: Text("Big Midas Vendor")),
-    content: Container(child: 
-    Text("This app collects location data to enable below features in the app, even when the app is closed or not in use.\n\nTo collect vehicle driver’s current location so customers can find all nearby drivers in customer app and can make the booking of it.\n\nTo collect your location so customers can find the nearby service provider or nearby stores in customers app and can make the booking of it."),
+    content: Container(height:400,
+    child:Column(children:[
+    Flexible(child:  
+    Text("This app collects location data to enable below features in the app, even when the app is closed or not in use.",style: TextStyle(fontWeight: FontWeight.bold),),
     ),
+    SizedBox(height: 20,),
+    Flexible(child: 
+    Text("To collect vehicle driver’s current location so customers can find all nearby drivers in customer app and can make the booking of it."),
+    ),
+    SizedBox(height: 20,),
+    Flexible(child:
+    Text("To collect your location so customers can find the nearby service provider or nearby stores in customers app and can make the booking of it."),
+    ),
+    ])),
     actions: [
       okButton,
+      space,
       rejectButton
           ],
   );

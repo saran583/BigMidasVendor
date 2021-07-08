@@ -82,18 +82,20 @@ final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
   void initState() {
     // TODO: implement initState
     super.initState();
-    getlocationstatus();
+    // getlocationstatus();
   }
 
-  void getlocationstatus() async {
-    // Future<Permcheck.PermissionStatus> Function({Permcheck.LocationPermissionLevel level}) permission = await LocationPermissions().checkPermissionStatus;
-    final locationStatus = await Permission.locationWhenInUse.serviceStatus;
-    bool location = locationStatus == Permcheck.ServiceStatus.enabled; 
-    if(location==false){
-      showAlert(context);
-    }
-    print("this is location status $location");
-  }
+  // void getlocationstatus() async {
+  //   print("Entered get locations");
+  //   // Future<Permcheck.PermissionStatus> Function({Permcheck.LocationPermissionLevel level}) permission = await LocationPermissions().checkPermissionStatus;
+  //   final locationStatus = await Permission.locationWhenInUse.serviceStatus;
+  //   bool location = locationStatus == Permcheck.ServiceStatus.enabled; 
+  //   if(location==false){
+  //     showAlert(context);
+  //     print("This is location $location");
+  //   }
+  //   print("this is location status $location");
+  // }
 
   @override
   void didChangeDependencies() {
@@ -182,35 +184,35 @@ final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
   }
 
-void showAlert(BuildContext context){
-  Widget okButton = RaisedButton(onPressed: (() {Navigator.of(context).pop();}), child: Text("Deny"),);
-  Widget rejectButton = RaisedButton( onPressed: (()async {Permcheck.PermissionStatus perms = await LocationPermissions().requestPermissions(); if(perms==Permcheck.PermissionStatus.granted){print("yes"); Navigator.of(context).pop();}}), child:Text("Okay"));
-  AlertDialog alert = AlertDialog(
-    title: Center(child: Text("Big Midas Vendor")),
-    content: Column(children:[
-    Expanded(child:  
-    Text("This app collects location data to enable below features in the app, even when the app is closed or not in use.",style: TextStyle(fontWeight: FontWeight.bold),),
-    ),
-    SizedBox(height: 10,),
-    Expanded(child: 
-    Text("To collect vehicle driver’s current location so customers can find all nearby drivers in customer app and can make the booking of it."),
-    ),
-    SizedBox(height: 10,),
-    Expanded(child:
-    Text("To collect your location so customers can find the nearby service provider or nearby stores in customers app and can make the booking of it."),
-    ),
-    ]),
-    actions: [
-      okButton,
-      rejectButton
-          ],
-  );
+// void showAlert(BuildContext context){
+//   Widget okButton = RaisedButton(onPressed: (() {Navigator.of(context).pop();}), child: Text("Deny"),);
+//   Widget rejectButton = RaisedButton( onPressed: (()async {Permcheck.PermissionStatus perms = await LocationPermissions().requestPermissions(); if(perms==Permcheck.PermissionStatus.granted){print("yes"); Navigator.of(context).pop();}}), child:Text("Okay"));
+//   AlertDialog alert = AlertDialog(
+//     title: Center(child: Text("Big Midas Vendor")),
+//     content: Column(children:[
+//     Expanded(child:  
+//     Text("This app collects location data to enable below features in the app, even when the app is closed or not in use.",style: TextStyle(fontWeight: FontWeight.bold),),
+//     ),
+//     SizedBox(height: 10,),
+//     Expanded(child: 
+//     Text("To collect vehicle driver’s current location so customers can find all nearby drivers in customer app and can make the booking of it."),
+//     ),
+//     SizedBox(height: 10,),
+//     Expanded(child:
+//     Text("To collect your location so customers can find the nearby service provider or nearby stores in customers app and can make the booking of it."),
+//     ),
+//     ]),
+//     actions: [
+//       okButton,
+//       rejectButton
+//           ],
+//   );
 
-  showDialog(context: context,
-  builder: (BuildContext context){
-    return alert;
-  });
-}
+//   showDialog(context: context,
+//   builder: (BuildContext context){
+//     return alert;
+//   });
+// }
 
 
 }
