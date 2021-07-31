@@ -18,9 +18,11 @@ import 'package:bigmidasvendor/screens/addproduct.dart';
 import 'package:bigmidasvendor/screens/allserviceorders.dart';
 import 'package:bigmidasvendor/screens/allvehicleorders.dart';
 import 'package:bigmidasvendor/screens/dashboard.dart';
+import 'package:bigmidasvendor/screens/editproduct%20(1).dart';
 import 'package:bigmidasvendor/screens/editproduct.dart';
 import 'package:bigmidasvendor/screens/editsingleproduct.dart';
 import 'package:bigmidasvendor/screens/listing.dart';
+import 'package:bigmidasvendor/screens/location.dart';
 import 'package:bigmidasvendor/screens/login.dart';
 import 'package:bigmidasvendor/screens/loginorregisteroption.dart';
 import 'package:bigmidasvendor/screens/notification.dart';
@@ -163,10 +165,12 @@ final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
           ReviewListView.routeName: (context) => ReviewListView(),
           Profile.routeName: (context) => Profile(),
           Subscription.routeName: (context) => Subscription(),
+          LocationDetails.routeName: (context) => LocationDetails(),
           ListOfVichleHistory.routeName: (context) => ListOfVichleHistory(),
           ListOfServiceHistory.routeName: (context) => ListOfServiceHistory(),
           ListOfHistory.routeName: (context) => ListOfHistory(),
           EditProduct.routeName: (context) => EditProduct(),
+          EditProduct1.routeName: (context) => EditProduct1(),
           AppNotification.routeName: (context) => AppNotification(),
           TC.routeName: (context) => TC(),
           Privacy.routeName: (context) => Privacy(),

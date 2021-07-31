@@ -1,4 +1,5 @@
 import 'package:bigmidasvendor/provider/providerlogn.dart';
+import 'package:bigmidasvendor/screens/location.dart';
 import 'package:bigmidasvendor/screens/notification.dart';
 import 'package:bigmidasvendor/screens/tutorial.dart';
 import 'package:flutter/cupertino.dart';
@@ -28,7 +29,14 @@ backgroundColor: Colors.deepOrangeAccent,
       child:  Image.asset("assets/images/question.png",height: 30,width: 30,) ,),
       SizedBox(width: 20,),
       if(Provider.of<ProviderLogin>(context, listen: false).userType!="vehicle")
-      Image.asset("assets/images/location.png",height: 30,width: 30,),
+      GestureDetector(
+      onTap: (){
+        Navigator.pushNamed(context, LocationDetails.routeName);
+      },
+      child: Container(
+        child: Image.asset("assets/images/location.png",height: 30,width: 30,),
+      ) ,
+    ),
       if(Provider.of<ProviderLogin>(context, listen: false).userType!="vehicle")
       SizedBox(width: 20,),
     GestureDetector(

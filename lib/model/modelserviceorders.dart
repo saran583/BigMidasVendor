@@ -60,7 +60,7 @@ class Products {
     title = json["title"];
     description = json["jobdescription"];
     location = json["location"];
-    price = json["price"];
+    price = json["price"].toString();
     date = json["date"];
     time = json["time"];
     status = json["status"].toString();

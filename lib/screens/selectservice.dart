@@ -54,7 +54,7 @@ class SelectServiceState extends State<SelectService>
             height: 60,
             color: Colors.red,
             child: InkWell(
-                onTap: () {
+                onTap: () async{
                   //SystemNavigator.pop();
                   LoginPreference pref=LoginPreference();
                   pref.deleteUserPreference();

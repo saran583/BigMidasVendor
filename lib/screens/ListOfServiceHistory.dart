@@ -8,6 +8,7 @@ import 'package:bigmidasvendor/model/modeluser.dart';
 import 'package:bigmidasvendor/provider/providerlogn.dart';
 import 'package:bigmidasvendor/provider/providersubscriptionplan.dart';
 import 'package:bigmidasvendor/screens/serviceHistory.dart';
+import 'package:bigmidasvendor/screens/subscription.dart';
 import 'package:bigmidasvendor/sharedpreference/loginpreferenc.dart';
 import 'package:bigmidasvendor/widgets/drawer.dart';
 import 'package:bigmidasvendor/widgets/testdraw.dart';
@@ -26,6 +27,7 @@ class ListOfServiceHistory extends StatefulWidget {
 
 class _ListOfServiceHistoryState extends State<ListOfServiceHistory> {
   int showDetails = 0;
+  String serviceId="";
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   int show=0;
   int load=0;
@@ -40,9 +42,39 @@ class _ListOfServiceHistoryState extends State<ListOfServiceHistory> {
     // TODO: implement initState
     super.initState();
     getOrders("1");
+    getserviceid();
     // getMyCurrentSubscription()
   }
-  ModalServiceOrdes modelServiceOrders;
+   ModalServiceOrdes modelServiceOrders;
+
+  void getserviceid() async{
+    LoginPreference pref=LoginPreference();
+    ModelUser modelUser=await pref.getUserPreference();
+
+    String vendorId=Provider.of<ProviderLogin>(context,listen:false).modelUser.sId;
+     print("this is vendorid from service $vendorId");
+
+     String url='https://admin.bigmidas.com/store/getservicelocation/${modelUser.sId}';
+
+    var request = http.Request('GET', Uri.parse(url));
+
+    http.StreamedResponse response = await request.send();
+    if (response.statusCode == 200) {
+       String strResponse=await response.stream.bytesToString();
+      print(" this is te response ${strResponse}");
+      //  modelServiceOrders=ModalServiceOrdes.fromJson(json.decode(strResponse));
+      // print(modeldetails.area);
+      // print("this is model ${modelServiceOrders.products}");
+      setState(() {
+        serviceId=strResponse.substring(1,strResponse.length-1);
+      });
+    }
+
+    print("this is state $serviceId");
+
+
+    }
+ 
 
   @override
   Widget build(BuildContext context) {
@@ -63,7 +95,9 @@ class _ListOfServiceHistoryState extends State<ListOfServiceHistory> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
                   GestureDetector(onTap: ((){
-                    Share.share('Checkout the Bigmidas Vendor app to list your Services and get orders online you can also list your Stores & Vehicles as well https://play.google.com/store/apps/details?id=bigmidas');
+                    if(serviceId.length>1){
+                    Share.share('Checkout the Bigmidas Vendor app to list your Services and get orders online you can also list your Stores & Vehicles as well https://admin.bigmidas.com/service/$serviceId');
+                    }
                   }),
                   child: Container(child: Image.asset("assets/images/share1.jpeg",height: 80,width: 80,),),),
                   Row(
@@ -71,6 +105,9 @@ class _ListOfServiceHistoryState extends State<ListOfServiceHistory> {
                     children: [
                       Text("Membership"),
                       SizedBox(width: 20,),
+                      InkWell(
+                      onTap: (){Navigator.pushNamed(context, Subscription.routeName);},
+                      child: 
                       Container(
 
                         margin: EdgeInsets.only(right: 10),
@@ -93,7 +130,7 @@ class _ListOfServiceHistoryState extends State<ListOfServiceHistory> {
                             "${modalMySubs.daysremaining}",
                           ),
                         ),
-                      )
+                      ))
                     ],
                   ),
                 ],),

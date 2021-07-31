@@ -334,7 +334,7 @@ class ListingState extends State<Listing> {
                         ) ,
                       ),
                     if(screen==1||screen==3)
-                    GestureDetector(onTap: () {
+                    GestureDetector (onTap: () {
                       showPlacePicker();
                       print("tapped");
                     },

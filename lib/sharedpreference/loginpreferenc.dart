@@ -21,6 +21,7 @@ class LoginPreference
 
   Future<String> getShopCatId()async
   {
+    print("this is dhared pref ${SharedPreferences.getInstance()}");
     SharedPreferences pref = await SharedPreferences.getInstance();
     if(pref==null||pref.getString(keyCatId)==null)return null;
 

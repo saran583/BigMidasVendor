@@ -307,9 +307,17 @@ void showAlert(BuildContext context,val,id,cname,cid,cphone,orderid,status,booki
       Align(alignment: Alignment.centerLeft,
         child:    Text("Time: $time",textAlign: TextAlign.left,),),
       Align(alignment: Alignment.centerLeft,
-        child:  Row(children: [Text("Location :     ",textAlign: TextAlign.left,), RaisedButton(onPressed: ((){
-                          status=="2"?Navigate(bookingto):Navigate(bookingfrom);
-                }),child: Text("Location") ) ],)),
+        child:  Row(children: [Expanded(flex: 4, child: Text("Pickup at: ",textAlign: TextAlign.left,)),
+        Expanded(flex: 6,  child:RaisedButton(onPressed: ((){
+                          Navigate(bookingfrom);
+                }),child: Text("Pickup Location") )),
+       ],)),
+       SizedBox(height: 20,),
+      Align(alignment: Alignment.centerLeft,
+        child:  Row(children: [Expanded(flex: 4, child:Text("Drop at: ",textAlign: TextAlign.left,)),Expanded(flex: 6, child: RaisedButton(onPressed: ((){
+                          Navigate(bookingto);
+                }),child: Text("Drop Location") )),
+       ],)),
 
 
     ],),),
@@ -423,9 +431,9 @@ Widget getProductWidget(value,id,cname,cid,cphone,orderid,status,bookingto,booki
           //     )
           //   ],
           // ),
-        status=="0" || status=="3"?Container():Row(children:[ 
-            SizedBox(width:50),
-                          RaisedButton(onPressed: ((){ 
+                status=="0" || status=="3"?Container():Row(children:[ 
+                        SizedBox(width: 50,),
+                           RaisedButton(onPressed: ((){ 
                           // sendnotification(cid,"Your request $orderid has been rejected by the vendor");
                           updatestatus(id.toString(),"0",cid,"Your request $orderid has been rejected by the vendor");
                         setState((){
@@ -438,20 +446,22 @@ Widget getProductWidget(value,id,cname,cid,cphone,orderid,status,bookingto,booki
                           setState((){
                           modelVehicleOrders.products.removeAt(value);});
                            }), child: status=="2"?Text("Completed"):Text("Accept"), ), ],),
-
-                      Row(children: [
-                        SizedBox(width: 50,),
-                        RaisedButton(onPressed: (() async {
-                          if(await canLaunch("tel:"+cphone)){
-                            await launch("tel:"+cphone);
-                          }           
+              Row(children: [
+                // SizedBox(width: 50,),
+                RaisedButton(onPressed: (() async {
+                          if(await canLaunch("tel:8074006214")){
+                            await launch("tel:8074006214");
+                          }
                 }),child: Text("Call Now") ),
-                 SizedBox(width: 5,),
-                RaisedButton(onPressed: ((){
-                          status=="2"?Navigate(bookingto):Navigate(bookingfrom);
-                }),child: Text("Location") ),
-                      ],)
-        ],
+                SizedBox(width: 5,),
+                         RaisedButton(onPressed: ((){
+                          Navigate(bookingfrom);
+                            }),child: Text("Pickup at") ),
+                SizedBox(width: 5,),
+                         RaisedButton(onPressed: ((){
+                          Navigate(bookingto);
+                            }),child: Text("Drop at") ),
+              ],)        ],
       ),
     ),
   ),

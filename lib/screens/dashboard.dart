@@ -1,7 +1,11 @@
+import 'dart:convert';
+
 import 'package:bigmidasvendor/model/modalmycurrentsubs.dart';
+import 'package:bigmidasvendor/model/modeldetails.dart';
 import 'package:bigmidasvendor/model/modeluser.dart';
 import 'package:bigmidasvendor/provider/providerlogn.dart';
 import 'package:bigmidasvendor/provider/providersubscriptionplan.dart';
+import 'package:bigmidasvendor/screens/editproduct%20(1).dart';
 import 'package:bigmidasvendor/screens/editproduct.dart';
 import 'package:bigmidasvendor/screens/subscription.dart';
 import 'package:bigmidasvendor/sharedpreference/loginpreferenc.dart';
@@ -9,6 +13,7 @@ import 'package:bigmidasvendor/widgets/drawer.dart';
 import 'package:bigmidasvendor/widgets/testdraw.dart';
 import 'package:bigmidasvendor/widgets/myappbar.dart';
 import 'package:bigmidasvendor/widgets/vehicleorders.dart';
+import 'package:http/http.dart' as http;
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -28,13 +33,40 @@ class DashBoard extends StatefulWidget
 class DashboardState extends State<DashBoard>
 {
 
+Modeldetails modeldetails;
+String shopid="";
+
+
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     getPlans();
+    getshopid();
+  }
+
+  void getshopid() async{
+    LoginPreference pref=LoginPreference();
+    ModelUser modelUser=await pref.getUserPreference();
+    String url='https://admin.bigmidas.com/store/storelocationdetails/${modelUser.sId}';
+
+    var request = http.Request('GET', Uri.parse(url));
+
+    http.StreamedResponse response = await request.send();
+    if (response.statusCode == 200) {
+       String strResponse=await response.stream.bytesToString();
+      print(" this is te response ${strResponse}");
+       modeldetails=Modeldetails.fromJson(json.decode(strResponse));
+      // print(modeldetails.area);
+      print(modeldetails);
+      setState(() {
+        shopid=modeldetails.vendors[0].sid;
+      });
+    }
 
   }
+
+
  void getPlans()async {
    LoginPreference pref=LoginPreference();
    ModelUser modelUser=await pref.getUserPreference();
@@ -51,12 +83,12 @@ class DashboardState extends State<DashBoard>
       // drawer: drawer(context,"Mohit","100"),
       drawer: TestDraw(),
       appBar: getAppBar(_scaffoldKey,context),
-      body: getDashboardDataDependingOnCategory(context),
+      body: getDashboardDataDependingOnCategory(context,shopid),
     );
   }
 }
 
-Widget getDashboardDataDependingOnCategory(BuildContext context) {
+Widget getDashboardDataDependingOnCategory(BuildContext context,shopid) {
 
    ModalMySubs modalMySubs=Provider.of<ProviderSubscriptionPlans>(context,listen:true).modalMySubs;
   String userType = Provider
@@ -70,7 +102,9 @@ Widget getDashboardDataDependingOnCategory(BuildContext context) {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
           GestureDetector(onTap: ((){
-                    Share.share('Checkout the Bigmidas Vendor app to list your Vehicle and get orders online you can also list your Store & Services as well https://play.google.com/store/apps/details?id=bigmidas');
+            if(shopid.length>4){
+                    Share.share('Checkout our Store on Big Midas App https://admin.bigmidas.com/shop/$shopid');
+            }
                   }),
                   child: Container(child: Image.asset("assets/images/share1.jpeg",height: 80,width: 80,),),),
         Row(
@@ -79,6 +113,7 @@ Widget getDashboardDataDependingOnCategory(BuildContext context) {
             Text("Membership"),
             SizedBox(width: 20,),
                                  InkWell(
+                                  //  Subscription.routeName
                       onTap: (){Navigator.pushNamed(context, Subscription.routeName);},
                       child:
             Container(

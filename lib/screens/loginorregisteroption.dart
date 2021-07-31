@@ -133,8 +133,8 @@ void showAlert(BuildContext context){
   Widget space = SizedBox(width: 100);
   Widget rejectButton = RaisedButton( onPressed: (()async {
      print("Entered log"); 
-     location.requestPermission();  
-     final PermissionStatus perm= await location.hasPermission();
+     final PermissionStatus perm = await location.requestPermission();  
+    //  final PermissionStatus perm= await location.hasPermission();
     if(perm == PermissionStatus.GRANTED){
       Navigator.of(context).pop();
       }

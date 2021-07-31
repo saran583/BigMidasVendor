@@ -38,6 +38,7 @@ String VEHICLE_ORDERS=BASE_URL+"/vehicleorders";
 String STORE_ORDERS=BASE_URL+"/ordersbyvendor";
 
 String UPDATE_STORE_ORDER_STATUS=BASE_URL+"/updatestoreorderstatus";
+String UPDATE_STORE_QUANTITY=BASE_URL+"/updatequantity";
 String UPDATE_SERVICE_ORDER_STATUS=BASE_URL+"/updateserviceorderstatus";
 String UPDATE_VEHICLE_ORDER_STATUS=BASE_URL+"/updatevehicleorderstatus";
 

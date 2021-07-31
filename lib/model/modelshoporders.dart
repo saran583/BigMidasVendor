@@ -31,6 +31,7 @@ class Products {
   String discountedprodprice;
   String deliverycharges;
   String address;
+  String productids;
   // int freedelivery;
   String totalprice;
   dynamic productimage;
@@ -49,6 +50,7 @@ class Products {
         this.discountedprodprice,
         this.deliverycharges,
         this.address,
+        this.productids,
         // this.freedelivery,
         this.totalprice,
         this.productimage,
@@ -65,6 +67,7 @@ class Products {
     sId = json['_id'];
     productname = json['productname'];
     customerid = json['customerid'];
+    productids = json['productids'];
     customername = json['customername'];
     customerphone = json['customerphone'].toString();
     discountedprodprice = json['discountedprodprice'];
@@ -85,6 +88,7 @@ class Products {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data['_id'] = this.sId;
     data['productname'] = this.productname;
+    data['productids'] = this.productids;
     data['customername'] = this.customername;
     data['customerphone'] = this.customerphone;
     data['customerid'] = this.customerid;

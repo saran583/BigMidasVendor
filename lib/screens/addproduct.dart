@@ -203,8 +203,12 @@ class AddProductState extends State<AddProduct>
                   );
                 }).toList(),
                 onChanged: (cat) {
-                catId=cat.sId;
-                subcatId=null;
+                  print("This is  cat id ${cat.sId}");
+                  setState(() {
+                    catId=cat.sId;
+                subcatId=null;    
+                  });
+                
                 getSubCat(cat.sId);
 
                 },
@@ -249,7 +253,7 @@ class AddProductState extends State<AddProduct>
                 getTextWidget("$discountedPrice","Enter Discounted Price",size,controllerdisprice,inputType: TextInputType.numberWithOptions(decimal: true)),
                 SizedBox(height: 20,),
                 //  getTItleWidget("Product Price"),
-                getTextWidget("Unit","Unit",size,controllerUnit,inputType: TextInputType.text),
+                getTextWidget("Unit (Kg/Piece)","Unit",size,controllerUnit,inputType: TextInputType.text),
                 SizedBox(height: 20,),
                 //  getTItleWidget("Product Price"),
                 getTextWidget("Stock","Stock",size,controllerStock,inputType: TextInputType.number),
@@ -283,7 +287,7 @@ class AddProductState extends State<AddProduct>
                           children: [
 
 
-                          Container(child: Image.network("https://admin.bigmidas.com:7420/"+product.prodphoto[i],height: 120,width: 120,fit: BoxFit.fill,),margin: EdgeInsets.only(left: 10),),
+                          Container(child: Image.network("https://admin.bigmidas.com/"+product.prodphoto[i],height: 120,width: 120,fit: BoxFit.fill,),margin: EdgeInsets.only(left: 10),),
 
 
                         ],),
@@ -539,10 +543,21 @@ class AddProductState extends State<AddProduct>
   }
 
   void getCategory() async{
-
     LoginPreference pref=LoginPreference();
-    catId=await pref.getShopCatId();
-    await getSubCat(catId);
+    String vendorid = Provider.of<ProviderLogin>(context,listen:false).modelUser.sId;
+    // catId=await pref.getShopCatId();
+    // await getSubCat(catId);
+    String url="https://admin.bigmidas.com/store/getshopcat/$vendorid";
+    print("get sub cat $url");
+    var request = http.Request('GET',
+        Uri.parse(url));
+
+    http.StreamedResponse response = await request.send();
+    String strresponse = await response.stream.bytesToString();
+    print("this is response $strresponse");
+    catId = strresponse;
+    await getSubCat(strresponse);
+
 //
 //    String url=SHOP_CAT;
 //    //var request = http.Request('GET', Uri.parse('http://162.241.201.237:7420/store/shoplist/cat'));
@@ -562,7 +577,7 @@ class AddProductState extends State<AddProduct>
 //     catId=await pref.getShopCatId();
 //
 //
-////  print(listOfModelCatList[0].catName);
+//  print(listOfModelCatList[0].catName);
 //    if (response.statusCode == 200) {
 //      if(catId==null||catId.isEmpty)
 //      catId=listOfModelCatList[0].sId;
@@ -591,10 +606,11 @@ class AddProductState extends State<AddProduct>
 
 
   void getSubCat(String cat) async{
-    String url=SHOP_SUBCAT+""+cat;
-print("get sub cat $url");
-//    var request = http.Request('GET',
-//     Uri.parse('http://162.241.201.237:7420/store/shoplist-sub/cat/$cat'));
+    print("this is cat to getsubcat function $cat");
+    String url="https://admin.bigmidas.com/store/shoplist-sub/cat1/604c562e51802b72fcaa142b";
+    print("get sub cat $url");
+  //  var request = http.Request('GET',
+  //   Uri.parse('http://162.241.201.237:7420/store/shoplist-sub/cat/$cat'));
 
     var request = http.Request('GET',
         Uri.parse(url));

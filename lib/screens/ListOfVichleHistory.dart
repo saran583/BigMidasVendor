@@ -1,7 +1,5 @@
-
 import 'dart:async';
 import 'dart:convert';
-
 import 'package:bigmidasvendor/model/modalmycurrentsubs.dart';
 import 'package:bigmidasvendor/model/modalvehicleorders.dart';
 import 'package:bigmidasvendor/model/modeluser.dart';
@@ -32,6 +30,7 @@ class _ListOfVichleHistoryState extends State<ListOfVichleHistory> {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   int load = 0;
   Timer timer;
+  String vehicleId = "";
 
 
   static List<Widget> _widgetOptions1 = <Widget>[
@@ -46,12 +45,44 @@ class _ListOfVichleHistoryState extends State<ListOfVichleHistory> {
     // TODO: implement initState
     super.initState();
     getOrders("1");
+    getvehicleid();
     getPlans();
     getlocation();
 
         timer = Timer.periodic(Duration(seconds: 300), (Timer t) =>getlocation());
         
   }
+
+    void getvehicleid() async{
+    LoginPreference pref=LoginPreference();
+    ModelUser modelUser=await pref.getUserPreference();
+
+    String vendorId=Provider.of<ProviderLogin>(context,listen:false).modelUser.sId;
+     print("this is vendorid from service $vendorId");
+
+     String url='https://admin.bigmidas.com/store/getvehiclelocation/${modelUser.sId}';
+
+    var request = http.Request('GET', Uri.parse(url));
+
+    http.StreamedResponse response = await request.send();
+    if (response.statusCode == 200) {
+       String strResponse=await response.stream.bytesToString();
+      print(" this is te response ${strResponse}");
+      //  modelServiceOrders=ModalServiceOrdes.fromJson(json.decode(strResponse));
+      // print(modeldetails.area);
+      // print("this is model ${modelServiceOrders.products}");
+      setState(() {
+        vehicleId=strResponse.substring(1,strResponse.length-1);
+      });
+    }
+
+    print("this is state $vehicleId");
+
+
+    }
+
+
+
 
   getlocation() async{
     String vendorId1=Provider.of<ProviderLogin>(context,listen:false).modelUser.sId;
@@ -85,7 +116,9 @@ class _ListOfVichleHistoryState extends State<ListOfVichleHistory> {
                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                children: <Widget>[
                  GestureDetector(onTap: ((){
-                    Share.share('Checkout the Bigmidas Vendor app to list your Vehicle and get orders online you can also list your Store & Services as well https://play.google.com/store/apps/details?id=bigmidas');
+                   if(vehicleId.length>5){
+                    Share.share('Checkout the Bigmidas Vendor app to list your Vehicle and get orders online you can also list your Store & Services as well https://admin.bigmidas.com/shop/$vehicleId');
+                   }
                   }),
                   child: Container(child: Image.asset("assets/images/share1.jpeg",height: 80,width: 80,),),),
                  Row(
@@ -384,15 +417,16 @@ void showAlert(BuildContext context,val,id,cname,cid,cphone,orderid,status,booki
         child:    Text("Time: $time",textAlign: TextAlign.left,),),
       SizedBox(height: 20,),
       Align(alignment: Alignment.centerLeft,
-        child:  Row(children: [Text("Pickup Location :    ",textAlign: TextAlign.left,), RaisedButton(onPressed: ((){
+        child:  Row(children: [Expanded(flex: 4, child: Text("Pickup at: ",textAlign: TextAlign.left,)),
+        Expanded(flex: 6,  child:RaisedButton(onPressed: ((){
                           Navigate(bookingfrom);
-                }),child: Text("Pickup Location") ),
+                }),child: Text("Pickup Location") )),
        ],)),
        SizedBox(height: 20,),
       Align(alignment: Alignment.centerLeft,
-        child:  Row(children: [Text("Drop Location :    ",textAlign: TextAlign.left,), RaisedButton(onPressed: ((){
+        child:  Row(children: [Expanded(flex: 4, child:Text("Drop at: ",textAlign: TextAlign.left,)),Expanded(flex: 6, child: RaisedButton(onPressed: ((){
                           Navigate(bookingto);
-                }),child: Text("Drop Location") ),
+                }),child: Text("Drop Location") )),
        ],)),
 
 
@@ -516,7 +550,7 @@ Widget getProductWidget(value,id,cname,cid,cphone,orderid,status,bookingfrom,boo
                           modelVehicleOrders.products.removeAt(value);});
                            }), child: status=="2"?Text("Completed"):Text("Accept"), ), ],),
               Row(children: [
-                SizedBox(width: 50,),
+                // SizedBox(width: 50,),
                 RaisedButton(onPressed: (() async {
                           if(await canLaunch("tel:8074006214")){
                             await launch("tel:8074006214");
@@ -525,11 +559,11 @@ Widget getProductWidget(value,id,cname,cid,cphone,orderid,status,bookingfrom,boo
                 SizedBox(width: 5,),
                          RaisedButton(onPressed: ((){
                           Navigate(bookingfrom);
-                            }),child: Text("Pickup Location") ),
+                            }),child: Text("Pickup at") ),
                 SizedBox(width: 5,),
                          RaisedButton(onPressed: ((){
                           Navigate(bookingto);
-                            }),child: Text("Drop Location") ),
+                            }),child: Text("Drop at") ),
               ],)
         ],
       ),

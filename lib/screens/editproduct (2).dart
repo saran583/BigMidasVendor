@@ -26,6 +26,11 @@ class EditProductState extends State<EditProduct> {
   var searchList = [];
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
+//  static List<Widget> _widgetOptions1 = <Widget>[
+//    StoreHistory(),
+//    StoreHistory(),
+//    StoreHistory(),
+//  ];
 
   @override
   void initState() {
@@ -219,4 +224,13 @@ class EditProductState extends State<EditProduct> {
                       ]),
               ));
   }
+//      Container(
+//      child: Column(
+//        children: [
+//          VichileHistory(),
+//          VichileHistory(),
+//          VichileHistory(),
+//        ],
+//      ),
+//    );
 }

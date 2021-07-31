@@ -1,8 +1,13 @@
-
 import 'dart:async';
-import 'dart:convert';
-import 'dart:math';
 import 'package:bigmidasvendor/common.dart';
+// import 'package:bigmidasvendor/screens/webdownload.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:syncfusion_flutter_pdf/pdf.dart';
+import 'package:path_provider/path_provider.dart';
+import 'dart:io';
+import 'package:open_file/open_file.dart';
+// import 'package:printing/printing.dart';
 // import 'package:bigmidasvendor/model/modalvehicleorders.dart';
 // import 'package:bigmidasvendor/model/modelserviceorders.dart';
 // import 'package:bigmidasvendor/model/modelserviceorders.dart';
@@ -35,7 +40,7 @@ class _ListOfHistoryState extends State<ListOfHistory> {
   bool isLoading=true;
   int showDetails = 0;
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
-
+  final GlobalKey<State<StatefulWidget>> _printKey = GlobalKey();
   String dropdownValue;
 
 //  static List<Widget> _widgetOptions1 = <Widget>[
@@ -50,6 +55,7 @@ class _ListOfHistoryState extends State<ListOfHistory> {
     super.initState();
     SchedulerBinding.instance.addPostFrameCallback((timeStamp) async{
        String args = ModalRoute.of(context).settings.arguments;
+       
        String args1 =Provider.of<ProviderLogin>(context,listen: false).userType; 
       if(args=="Orders")
         args="All Orders";
@@ -64,6 +70,7 @@ class _ListOfHistoryState extends State<ListOfHistory> {
 
   }
   ModelShopOrders modelShopOrders;
+  var printclick = 0;
   // ModalServiceOrdes modelServiceOrders;
   // ModalVehicleOrders modelVehicleOrders;
   @override
@@ -207,7 +214,7 @@ class _ListOfHistoryState extends State<ListOfHistory> {
       );
   
   }
-    void updatestatus(String orderid, String val, String cusid, String msg) async{
+    void updatestatus(String orderid, String val, String cusid, String msg, String productname, String qty,String productids) async{
 
       print(orderid);
       print(val);
@@ -222,24 +229,55 @@ class _ListOfHistoryState extends State<ListOfHistory> {
     "stat":val,
     "cust":cusid,
     "message":msg,
+    "productname":productname,
+    "quantity":qty,
     };
+    if(val=="2"){
+      updateqty(productids,qty);
+      }
 
     http.StreamedResponse response = await request.send();
-
+    
 
     // print("Service orders $url");
 
     if (response.statusCode == 200) {
       String strRes=await response.stream.bytesToString();
-      print(strRes);
-      
+      print("this is from update orders $strRes");
       
     }
     else {
-    print(response.reasonPhrase);
+    print("this is from update orders ${response.reasonPhrase}");
     }
 
   }
+
+
+
+    void updateqty(String productids, String qty) async{
+      print("entered updateqty function");
+      print("this is productsid $productids");
+      print("this is qty $qty");
+    String url=UPDATE_STORE_QUANTITY;
+
+    var request = http.Request('POST', Uri.parse(url));
+    request.bodyFields = {
+    "productids":productids,
+    "quantity":qty,
+    };
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      String strRes=await response.stream.bytesToString();
+      print("this is from update quantity store orders $strRes");
+    }
+    else {
+    print("this is from update quantity store orders ${response.reasonPhrase}");
+    }
+
+  }
+
 
   void Navigate(String destination) async {
     var url="https://www.google.com/maps/dir/?api=1&destination=$destination&travelmode=driving&dir_action=navigate";
@@ -281,7 +319,7 @@ print(products.productimage);
     return SingleChildScrollView(child: GestureDetector(onTap: (){
       showAlert(context, products.sId,
       products.productname,products.quantity,products.customerid,products.customername,
-      products.customerphone,products.status,products.ordernote, products.orederid,products.ordertime,value,products.totalprice,products.deliverycharges,products.address,products.productimage,products.discountedprodprice);
+      products.customerphone,products.status,products.ordernote, products.orederid,products.ordertime,value,products.totalprice,products.deliverycharges,products.address,products.productimage,products.discountedprodprice,products.productids);
       // Navigator.pushNamed(context, Orderdescription.routeName,arguments: products );
     },  child:  Container(
         decoration: BoxDecoration(border: Border.all(color: Colors.grey[300])),
@@ -344,16 +382,18 @@ print(products.productimage);
                             setState((){token="3";});
                           }
                           // sendnotification(products.customerid,products.status=="2"?"Your order ${products.orederid} has been delivered successfully!!":"Your order ${products.orederid} has been accepted by the vendor");
-                          updatestatus(products.sId.toString(),token,products.customerid,products.status=="2"?"Your order ${products.orederid} has been delivered successfully!!":"Your order ${products.orederid} has been accepted by the vendor");
+                          updatestatus(products.sId.toString(),token,products.customerid,products.status=="2"?"Your order ${products.orederid} has been delivered successfully!!":"Your order ${products.orederid} has been accepted by the vendor",products.productname,products.quantity,products.productids);
+
                           setState(() {
                           modelShopOrders.products.removeAt(value);
                           });
+                         
                 }),child: products.status=="2"?Text("Completed"):Text("Accept"), ),
                 SizedBox(width: 15,),
                 products.status=="1"?RaisedButton(onPressed: ((){
                           var token="0";
                           // sendnotification(products.customerid,"Your order ${products.orederid} has been rejected by the Vendor");
-                          updatestatus(products.sId.toString(),token,products.customerid,"Your order ${products.orederid} has been rejected by the Vendor");
+                          updatestatus(products.sId.toString(),token,products.customerid,"Your order ${products.orederid} has been rejected by the Vendor","","","");
                           setState(() {
                           modelShopOrders.products.removeAt(value);
                           });
@@ -379,7 +419,33 @@ print(products.productimage);
 
 }
 
-void showAlert(BuildContext context, pId,productname,String quantity,customerid,customername,customerphone,status,ordernote,orederid,ordertime,val,totalprice,deliverycharges,address,productimage,discountprice){
+
+
+  // void _printScreen() {
+  //   Printing.layoutPdf(onLayout: (PdfPageFormat format) async {
+  //     final doc = pw.Document();
+
+  //     final image = await Widgetwrap.fromKey(
+  //       key: _printKey,
+  //       pixelRatio: 2.0,
+  //     );
+
+  //     doc.addPage(pw.Page(
+  //         pageFormat: format,
+  //         build: (pw.Context context) {
+  //           return pw.Center(
+  //             child: pw.Expanded(
+  //               child: pw.Image(image),
+  //             ),
+  //           );
+  //         }));
+
+  //     return doc.save();
+  //   });
+  // }
+
+
+void showAlert(BuildContext context, pId,productname,String quantity,customerid,customername,customerphone,status,ordernote,orederid,ordertime,val,totalprice,deliverycharges,address,productimage,discountprice,productids){
     // var tp= int.parse(cost) * int.parse(quantity);
     // print(totalprice);
     var products = productname.split("&&");
@@ -392,7 +458,7 @@ void showAlert(BuildContext context, pId,productname,String quantity,customerid,
                           if(status=="2"){
                             setState((){token="3";});
                           }
-                          updatestatus(pId.toString(),token,customerid,status=="2"?"Your order $orederid has been delivered successfully!!":"Your order $orederid has been accepted by the vendor");
+                          updatestatus(pId.toString(),token,customerid,status=="2"?"Your order $orederid has been delivered successfully!!":"Your order $orederid has been accepted by the vendor",productname,quantity,productids);
                           // sendnotification(customerid,status=="2"?"Your order $orederid has been delivered successfully!!":"Your order $orederid has been accepted by the vendor");
                           setState(() {
                           modelShopOrders.products.removeAt(val);
@@ -401,7 +467,7 @@ void showAlert(BuildContext context, pId,productname,String quantity,customerid,
                           }) );
   Widget rejectButton =  status=="3"||status=="0"?Container():RaisedButton(onPressed: ((){
                           var token="0";
-                          updatestatus(pId.toString(),token,customerid,"Your order $orederid has been rejected by the Vendor");
+                          updatestatus(pId.toString(),token,customerid,"Your order $orederid has been rejected by the Vendor","","","");
                           // sendnotification(customerid,"Your order $orederid has been rejected by the Vendor");
                           setState(() {
                           modelShopOrders.products.removeAt(val);
@@ -417,7 +483,7 @@ void showAlert(BuildContext context, pId,productname,String quantity,customerid,
 
   AlertDialog alert = AlertDialog(
     title: Center(child: Text("OrderId: $orederid")),
-    content: SingleChildScrollView(child:  Column(children: [
+    content: SingleChildScrollView(child: Column ( children: [
       if(products.length>1)
       for(var i=0;i<products.length;i++)
       Row(children: [
@@ -487,6 +553,20 @@ void showAlert(BuildContext context, pId,productname,String quantity,customerid,
         child:  Row(children: [Text("Location :      ",textAlign: TextAlign.left,), RaisedButton(onPressed: ((){
                           Navigate(address.split(":")[0]);
                 }),child: Text("Location") ), ],),),
+      Align(alignment: Alignment.center,
+        child:  RaisedButton(onPressed: ((){
+                          this.setState(() {
+                            printclick=1;
+                          });
+                          _createPDF(orederid,products,qty,price,customername,customerphone,address);
+                          // _showToast(context);
+                          // Navigator.of(context).pop();
+
+                                                    // });
+                          // Navigator.of(context).pop();
+                }),child: Text("Print PDF") ),),
+                printclick==1?Text("the file has been saved successfully"):Container()
+      
 
 
 
@@ -506,5 +586,78 @@ void showAlert(BuildContext context, pId,productname,String quantity,customerid,
     return alert;
   });
 }
+
+Future<void> _createPDF(ordernum,products,qty,price,custname,custphone,address) async{
+  var total=0;
+  var fileName = "Store Order - $ordernum.pdf";
+    PdfDocument document= PdfDocument();
+    final page = document.pages.add();
+
+    page.graphics.drawString("                      Bigmidas ", PdfStandardFont(PdfFontFamily.helvetica,30));
+    
+    page.graphics.drawString("    $custname - $custphone ", PdfStandardFont(PdfFontFamily.helvetica,20), bounds:const Rect.fromLTWH(0,70,0,0));
+    // page.graphics.drawString("    Address - $address ", PdfStandardFont(PdfFontFamily.helvetica,15), bounds:const Rect.fromLTWH(0,100,0,0));
+
+
+PdfGrid grid1 = PdfGrid();
+    grid1.style = PdfGridStyle(font: PdfStandardFont(PdfFontFamily.helvetica,15),
+                              cellPadding: PdfPaddings(left:10, right: 10, top:5, bottom:5));
+
+    grid1.columns.add(count: 1);
+    PdfGridRow row1 = grid1.rows.add();
+    row1.cells[0].value="Address : $address";
+
+    grid1.draw(page: page,bounds: const Rect.fromLTWH(0,100,0,0) );
+
+
+    PdfGrid grid = PdfGrid();
+    grid.style = PdfGridStyle(font: PdfStandardFont(PdfFontFamily.helvetica,15),
+                              cellPadding: PdfPaddings(left:10, right: 2, top:5, bottom:5));
+
+    grid.columns.add(count: 4);
+    grid.headers.add(1);
+
+    PdfGridRow header = grid.headers[0];
+    header.cells[0].value = "S.No"; 
+    header.cells[1].value = "Product Name";
+    header.cells[2].value = "Quantity";
+    header.cells[3].value = "Amount";
+
+
+    for(var i=0;i<products.length;i++){
+    PdfGridRow row = grid.rows.add();
+    row.cells[0].value=(i+1).toString();
+    row.cells[1].value=products[i].toString();
+    row.cells[2].value=qty[i].toString();
+    row.cells[3].value=price[i].toString();
+    total=total+int.parse(price[i]);
+    }
+
+    PdfGridRow row = grid.rows.add();
+    row.cells[2].value="Total Amount";
+    row.cells[3].value=total.toString();
+
+    grid.draw(page: page,bounds: const Rect.fromLTWH(0,150,0,0) );
+
+    List<int> bytes = document.save();
+    document.dispose();
+
+    final path = (await getExternalStorageDirectory()).path;
+    print("this is external storage path $path");
+    final file = File("$path/Store Order - $ordernum.pdf");
+    await file.writeAsBytes(bytes, flush:true);
+    print("doc has been saved $path/Store Order - $ordernum.pdf");
+    OpenFile.open("$path/Store Order - $ordernum.pdf");
+
+  }
+
+  // void _showToast(BuildContext context){
+  //   final scaffold = Scaffold.of(context);
+  //   scaffold.showSnackBar(
+  //     SnackBar(content: const Text("the file has been saved successfully"),
+  //     action: SnackBarAction(label: "Okay", onPressed: scaffold.hideCurrentSnackBar),
+  //     )
+  //   );
+  // }
 
 }
